@@ -32,6 +32,22 @@ export interface Item {
   maxStack: number;
   value: number;
   icon?: ImageSourcePropType;
+  stats?: ItemStats;
+  effects?: ItemEffects;
+}
+
+export interface ItemStats {
+  damage?: number;
+  durability?: number;
+  armor?: number;
+  speed?: number;
+}
+
+export interface ItemEffects {
+  hunger?: number;
+  thirst?: number;
+  health?: number;
+  energy?: number;
 }
 
 export enum ItemType {
@@ -41,6 +57,8 @@ export enum ItemType {
   ARMOR = "ARMOR",
   CONSUMABLE = "CONSUMABLE",
   CRAFTABLE = "CRAFTABLE",
+  FOOD = "FOOD",
+  DRINK = "DRINK",
 }
 
 export enum ItemRarity {

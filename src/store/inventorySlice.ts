@@ -122,6 +122,28 @@ const inventorySlice = createSlice({
     clearInventory: (state) => {
       state.inventory = createInitialInventory();
     },
+    dropItem: (state, action: PayloadAction<{ slotId: string }>) => {
+      const slot = state.inventory.slots.find(
+        (s) => s.id === action.payload.slotId
+      );
+      if (slot) {
+        slot.item = null;
+        slot.quantity = 0;
+      }
+    },
+    consumeItem: (state, action: PayloadAction<{ slotId: string }>) => {
+      const slot = state.inventory.slots.find(
+        (s) => s.id === action.payload.slotId
+      );
+      if (slot && slot.item) {
+        if (slot.quantity > 1) {
+          slot.quantity -= 1;
+        } else {
+          slot.item = null;
+          slot.quantity = 0;
+        }
+      }
+    },
   },
 });
 
@@ -131,6 +153,8 @@ export const {
   moveItem,
   upgradeInventory,
   clearInventory,
+  dropItem,
+  consumeItem,
 } = inventorySlice.actions;
 
 export default inventorySlice.reducer;

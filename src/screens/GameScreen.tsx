@@ -49,39 +49,50 @@ export const GameScreen: React.FC = () => {
     // Clear any active crafting from previous session
     dispatch(clearActiveCrafting());
 
-    // Initialize player if not exists
+    // Initialize player if not exists (first time setup)
     if (!player) {
-      console.log("Creating new player with expanded starting inventory");
+      console.log("Creating new player with starting inventory");
       const newPlayer = createDefaultPlayer("Survivor");
       dispatch(createPlayer(newPlayer));
 
-      // Starting materials for testing multiple crafting recipes
+      // Starting materials for new players only
       dispatch(addItem({ item: ITEMS.wood, quantity: 15 }));
       dispatch(addItem({ item: ITEMS.fibers, quantity: 10 }));
 
-      // Discover basic crafting recipes
+      // Add some test consumables for modal testing
+      dispatch(addItem({ item: ITEMS.mushrooms, quantity: 3 }));
+      dispatch(addItem({ item: ITEMS.water, quantity: 2 }));
+      dispatch(addItem({ item: ITEMS.beef, quantity: 1 }));
+
+      // Discover basic crafting recipes for new players
       dispatch(discoverRecipe("wooden_plank"));
       dispatch(discoverRecipe("wooden_axe"));
+      dispatch(discoverRecipe("wooden_pickaxe"));
+      dispatch(discoverRecipe("wooden_sword"));
       dispatch(discoverRecipe("rope"));
     } else {
-      console.log("Player already exists, skipping initialization");
+      console.log("Player already exists, loading saved data");
     }
 
-    // Ensure recipes are available for testing
-    console.log("Ensuring test recipes are discovered");
+    // Ensure test recipes are always available (for development)
+    console.log("Ensuring test recipes are available");
     dispatch(discoverRecipe("wooden_plank"));
     dispatch(discoverRecipe("wooden_axe"));
+    dispatch(discoverRecipe("wooden_pickaxe"));
+    dispatch(discoverRecipe("wooden_sword"));
     dispatch(discoverRecipe("rope"));
 
-    // Only make testing recipes available
+    // Set available recipes for crafting panel
     dispatch(
       setAvailableRecipes([
         RECIPES.wooden_plank,
         RECIPES.wooden_axe,
+        RECIPES.wooden_pickaxe,
+        RECIPES.wooden_sword,
         RECIPES.rope,
       ])
     );
-  }, [dispatch]); // Run only when dispatch changes
+  }, [dispatch, player?.id]); // Depend on player.id to avoid re-running when player object changes
 
   if (!player) {
     return (

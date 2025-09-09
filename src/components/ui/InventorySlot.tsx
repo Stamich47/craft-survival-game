@@ -4,7 +4,7 @@ import { InventorySlot as InventorySlotType } from "../../types";
 
 interface InventorySlotProps {
   slot: InventorySlotType;
-  onPress?: () => void;
+  onPress?: (slot: InventorySlotType) => void;
   size?: number;
 }
 
@@ -13,12 +13,18 @@ export const InventorySlot: React.FC<InventorySlotProps> = ({
   onPress,
   size = 80,
 }) => {
+  const handlePress = () => {
+    if (onPress && slot.item) {
+      onPress(slot);
+    }
+  };
+
   return (
     <View style={styles.slotContainer}>
       <TouchableOpacity
         style={[styles.slot, { width: size, height: size }]}
-        onPress={onPress}
-        disabled={!onPress}
+        onPress={handlePress}
+        disabled={!onPress || !slot.item}
       >
         {slot.item ? (
           <>
@@ -53,7 +59,8 @@ export const InventorySlot: React.FC<InventorySlotProps> = ({
 const styles = StyleSheet.create({
   slotContainer: {
     alignItems: "center",
-    margin: 4,
+    margin: 4, // Margin for spacing between slots
+    width: 80, // Fixed width for consistent 4-column layout
   },
   slot: {
     backgroundColor: "#2a2a2a",

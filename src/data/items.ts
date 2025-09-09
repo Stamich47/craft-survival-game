@@ -281,23 +281,31 @@ export const ITEMS: Record<string, Item> = {
     id: "mushrooms",
     name: "Mushrooms",
     description: "Wild mushrooms that restore hunger.",
-    type: ItemType.CONSUMABLE,
+    type: ItemType.FOOD,
     rarity: ItemRarity.COMMON,
     stackable: true,
     maxStack: 20,
     value: 4,
     icon: SPRITE_MAPPING.mushrooms,
+    effects: {
+      hunger: 15,
+      health: 5,
+    },
   },
   beef: {
     id: "beef",
     name: "Beef",
     description: "Raw beef from cattle, high in protein.",
-    type: ItemType.CONSUMABLE,
+    type: ItemType.FOOD,
     rarity: ItemRarity.UNCOMMON,
     stackable: true,
     maxStack: 15,
     value: 12,
     icon: SPRITE_MAPPING.beef,
+    effects: {
+      hunger: 25,
+      health: 10,
+    },
   },
   fish: {
     id: "fish",
@@ -354,6 +362,10 @@ export const ITEMS: Record<string, Item> = {
     maxStack: 1,
     value: 10,
     icon: WEAPON_SPRITE_MAPPING.wooden_axe, // Using wooden axe sprite for authentic wooden look
+    stats: {
+      damage: 8,
+      durability: 32,
+    },
   },
   wooden_pickaxe: {
     id: "wooden_pickaxe",
@@ -365,6 +377,10 @@ export const ITEMS: Record<string, Item> = {
     maxStack: 1,
     value: 12,
     icon: WEAPON_SPRITE_MAPPING.wooden_pickaxe, // Using wooden pickaxe sprite for authentic wooden look
+    stats: {
+      damage: 6,
+      durability: 28,
+    },
   },
   wooden_sword: {
     id: "wooden_sword",
@@ -376,6 +392,10 @@ export const ITEMS: Record<string, Item> = {
     maxStack: 1,
     value: 8,
     icon: WEAPON_SPRITE_MAPPING.wooden_sword, // Using wooden sword sprite for authentic wooden look
+    stats: {
+      damage: 12,
+      durability: 25,
+    },
   },
   hardwood_plank: {
     id: "hardwood_plank",
@@ -911,12 +931,16 @@ export const ITEMS: Record<string, Item> = {
     id: "water",
     name: "Water",
     description: "Clean water that restores thirst.",
-    type: ItemType.CONSUMABLE,
+    type: ItemType.DRINK,
     rarity: ItemRarity.COMMON,
     stackable: true,
     maxStack: 10,
     value: 2,
     icon: SPRITE_MAPPING.empty_milk_bottle, // Using empty bottle sprite for water
+    effects: {
+      thirst: 30,
+      energy: 5,
+    },
   },
 
   // Rope - keeping this one too
