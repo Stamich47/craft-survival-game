@@ -88,6 +88,11 @@ const playerSlice = createSlice({
     setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
     },
+    resetPlayer: (state) => {
+      state.player = null;
+      state.isLoading = false;
+      state.error = null;
+    },
   },
 });
 
@@ -101,6 +106,7 @@ export const {
   restPlayer,
   setLoading,
   setError,
+  resetPlayer,
 } = playerSlice.actions;
 
 export default playerSlice.reducer;

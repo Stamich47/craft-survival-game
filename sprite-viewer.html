@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sprite Viewer - Resources Basic</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f0f0f0;
+        margin: 20px;
+        line-height: 1.6;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 30px;
+      }
+      .sprite-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 15px;
+        margin-bottom: 30px;
+      }
+      .sprite-card {
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        text-align: center;
+        background: white;
+        transition: transform 0.2s, border-color 0.2s;
+      }
+      .sprite-card:hover {
+        transform: scale(1.05);
+        border-color: #4a90e2;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
+      .sprite-image {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 10px;
+        background: #f9f9f9;
+        border: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+      }
+      .sprite-image img {
+        max-width: 100%;
+        max-height: 100%;
+        image-rendering: pixelated;
+        image-rendering: -moz-crisp-edges;
+        image-rendering: crisp-edges;
+      }
+      .sprite-info {
+        font-size: 12px;
+        color: #666;
+      }
+      .sprite-number {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 5px;
+      }
+      .sprite-position {
+        color: #999;
+        font-size: 10px;
+      }
+      .instructions {
+        background: #e3f2fd;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border-left: 4px solid #2196f3;
+      }
+      .row-header {
+        grid-column: 1 / -1;
+        background: #4a90e2;
+        color: white;
+        padding: 10px;
+        text-align: center;
+        font-weight: bold;
+        border-radius: 4px;
+        margin-top: 20px;
+      }
+      .row-header:first-child {
+        margin-top: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎨 Sprite Viewer - Resources Basic</h1>
+
+      <div class="instructions">
+        <h3>📋 Instructions:</h3>
+        <p>
+          Below are all 121 sprites from your sprite sheet. Each sprite is 24x24
+          pixels and has been extracted from an 11x11 grid.
+        </p>
+        <p>
+          <strong>How to use:</strong> Look at each sprite and note what it
+          represents. Then update the <code>src/assets/index.ts</code> file with
+          meaningful names.
+        </p>
+        <p>
+          <strong>Grid Layout:</strong> Sprites are numbered left-to-right,
+          top-to-bottom (0-120)
+        </p>
+      </div>
+
+      <div class="sprite-grid">
+        <div class="row-header">Row 0 (Sprites 0-10)</div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_000.png" alt="Sprite 0" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 0</div>
+            <div class="sprite-position">Row 0, Col 0</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_001.png" alt="Sprite 1" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 1</div>
+            <div class="sprite-position">Row 0, Col 1</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_002.png" alt="Sprite 2" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 2</div>
+            <div class="sprite-position">Row 0, Col 2</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_003.png" alt="Sprite 3" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 3</div>
+            <div class="sprite-position">Row 0, Col 3</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_004.png" alt="Sprite 4" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 4</div>
+            <div class="sprite-position">Row 0, Col 4</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_005.png" alt="Sprite 5" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 5</div>
+            <div class="sprite-position">Row 0, Col 5</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_006.png" alt="Sprite 6" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 6</div>
+            <div class="sprite-position">Row 0, Col 6</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_007.png" alt="Sprite 7" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 7</div>
+            <div class="sprite-position">Row 0, Col 7</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_008.png" alt="Sprite 8" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 8</div>
+            <div class="sprite-position">Row 0, Col 8</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_009.png" alt="Sprite 9" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 9</div>
+            <div class="sprite-position">Row 0, Col 9</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_010.png" alt="Sprite 10" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 10</div>
+            <div class="sprite-position">Row 0, Col 10</div>
+          </div>
+        </div>
+        <div class="row-header">Row 1 (Sprites 11-21)</div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_011.png" alt="Sprite 11" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 11</div>
+            <div class="sprite-position">Row 1, Col 0</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_012.png" alt="Sprite 12" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 12</div>
+            <div class="sprite-position">Row 1, Col 1</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_013.png" alt="Sprite 13" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 13</div>
+            <div class="sprite-position">Row 1, Col 2</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_014.png" alt="Sprite 14" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 14</div>
+            <div class="sprite-position">Row 1, Col 3</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_015.png" alt="Sprite 15" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 15</div>
+            <div class="sprite-position">Row 1, Col 4</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_016.png" alt="Sprite 16" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 16</div>
+            <div class="sprite-position">Row 1, Col 5</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_017.png" alt="Sprite 17" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 17</div>
+            <div class="sprite-position">Row 1, Col 6</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_018.png" alt="Sprite 18" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 18</div>
+            <div class="sprite-position">Row 1, Col 7</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_019.png" alt="Sprite 19" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 19</div>
+            <div class="sprite-position">Row 1, Col 8</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_020.png" alt="Sprite 20" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 20</div>
+            <div class="sprite-position">Row 1, Col 9</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_021.png" alt="Sprite 21" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 21</div>
+            <div class="sprite-position">Row 1, Col 10</div>
+          </div>
+        </div>
+        <div class="row-header">Row 2 (Sprites 22-32)</div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_022.png" alt="Sprite 22" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 22</div>
+            <div class="sprite-position">Row 2, Col 0</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_023.png" alt="Sprite 23" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 23</div>
+            <div class="sprite-position">Row 2, Col 1</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_024.png" alt="Sprite 24" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 24</div>
+            <div class="sprite-position">Row 2, Col 2</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_025.png" alt="Sprite 25" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 25</div>
+            <div class="sprite-position">Row 2, Col 3</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_026.png" alt="Sprite 26" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 26</div>
+            <div class="sprite-position">Row 2, Col 4</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_027.png" alt="Sprite 27" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 27</div>
+            <div class="sprite-position">Row 2, Col 5</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_028.png" alt="Sprite 28" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 28</div>
+            <div class="sprite-position">Row 2, Col 6</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_029.png" alt="Sprite 29" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 29</div>
+            <div class="sprite-position">Row 2, Col 7</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_030.png" alt="Sprite 30" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 30</div>
+            <div class="sprite-position">Row 2, Col 8</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_031.png" alt="Sprite 31" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 31</div>
+            <div class="sprite-position">Row 2, Col 9</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_032.png" alt="Sprite 32" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 32</div>
+            <div class="sprite-position">Row 2, Col 10</div>
+          </div>
+        </div>
+        <div class="row-header">Row 3 (Sprites 33-43)</div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_033.png" alt="Sprite 33" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 33</div>
+            <div class="sprite-position">Row 3, Col 0</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_034.png" alt="Sprite 34" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 34</div>
+            <div class="sprite-position">Row 3, Col 1</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_035.png" alt="Sprite 35" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 35</div>
+            <div class="sprite-position">Row 3, Col 2</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_036.png" alt="Sprite 36" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 36</div>
+            <div class="sprite-position">Row 3, Col 3</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_037.png" alt="Sprite 37" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 37</div>
+            <div class="sprite-position">Row 3, Col 4</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_038.png" alt="Sprite 38" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 38</div>
+            <div class="sprite-position">Row 3, Col 5</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_039.png" alt="Sprite 39" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 39</div>
+            <div class="sprite-position">Row 3, Col 6</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_040.png" alt="Sprite 40" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 40</div>
+            <div class="sprite-position">Row 3, Col 7</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_041.png" alt="Sprite 41" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 41</div>
+            <div class="sprite-position">Row 3, Col 8</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_042.png" alt="Sprite 42" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 42</div>
+            <div class="sprite-position">Row 3, Col 9</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_043.png" alt="Sprite 43" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 43</div>
+            <div class="sprite-position">Row 3, Col 10</div>
+          </div>
+        </div>
+        <div class="row-header">Row 4 (Sprites 44-54)</div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_044.png" alt="Sprite 44" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 44</div>
+            <div class="sprite-position">Row 4, Col 0</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_045.png" alt="Sprite 45" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 45</div>
+            <div class="sprite-position">Row 4, Col 1</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_046.png" alt="Sprite 46" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 46</div>
+            <div class="sprite-position">Row 4, Col 2</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_047.png" alt="Sprite 47" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 47</div>
+            <div class="sprite-position">Row 4, Col 3</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_048.png" alt="Sprite 48" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 48</div>
+            <div class="sprite-position">Row 4, Col 4</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_049.png" alt="Sprite 49" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 49</div>
+            <div class="sprite-position">Row 4, Col 5</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_050.png" alt="Sprite 50" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 50</div>
+            <div class="sprite-position">Row 4, Col 6</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_051.png" alt="Sprite 51" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 51</div>
+            <div class="sprite-position">Row 4, Col 7</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_052.png" alt="Sprite 52" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 52</div>
+            <div class="sprite-position">Row 4, Col 8</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_053.png" alt="Sprite 53" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 53</div>
+            <div class="sprite-position">Row 4, Col 9</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_054.png" alt="Sprite 54" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 54</div>
+            <div class="sprite-position">Row 4, Col 10</div>
+          </div>
+        </div>
+        <div class="row-header">Row 5 (Sprites 55-65)</div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_055.png" alt="Sprite 55" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 55</div>
+            <div class="sprite-position">Row 5, Col 0</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_056.png" alt="Sprite 56" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 56</div>
+            <div class="sprite-position">Row 5, Col 1</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_057.png" alt="Sprite 57" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 57</div>
+            <div class="sprite-position">Row 5, Col 2</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_058.png" alt="Sprite 58" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 58</div>
+            <div class="sprite-position">Row 5, Col 3</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_059.png" alt="Sprite 59" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 59</div>
+            <div class="sprite-position">Row 5, Col 4</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_060.png" alt="Sprite 60" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 60</div>
+            <div class="sprite-position">Row 5, Col 5</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_061.png" alt="Sprite 61" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 61</div>
+            <div class="sprite-position">Row 5, Col 6</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_062.png" alt="Sprite 62" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 62</div>
+            <div class="sprite-position">Row 5, Col 7</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_063.png" alt="Sprite 63" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 63</div>
+            <div class="sprite-position">Row 5, Col 8</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_064.png" alt="Sprite 64" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 64</div>
+            <div class="sprite-position">Row 5, Col 9</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_065.png" alt="Sprite 65" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 65</div>
+            <div class="sprite-position">Row 5, Col 10</div>
+          </div>
+        </div>
+        <div class="row-header">Row 6 (Sprites 66-76)</div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_066.png" alt="Sprite 66" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 66</div>
+            <div class="sprite-position">Row 6, Col 0</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_067.png" alt="Sprite 67" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 67</div>
+            <div class="sprite-position">Row 6, Col 1</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_068.png" alt="Sprite 68" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 68</div>
+            <div class="sprite-position">Row 6, Col 2</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_069.png" alt="Sprite 69" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 69</div>
+            <div class="sprite-position">Row 6, Col 3</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_070.png" alt="Sprite 70" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 70</div>
+            <div class="sprite-position">Row 6, Col 4</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_071.png" alt="Sprite 71" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 71</div>
+            <div class="sprite-position">Row 6, Col 5</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_072.png" alt="Sprite 72" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 72</div>
+            <div class="sprite-position">Row 6, Col 6</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_073.png" alt="Sprite 73" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 73</div>
+            <div class="sprite-position">Row 6, Col 7</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_074.png" alt="Sprite 74" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 74</div>
+            <div class="sprite-position">Row 6, Col 8</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_075.png" alt="Sprite 75" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 75</div>
+            <div class="sprite-position">Row 6, Col 9</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_076.png" alt="Sprite 76" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 76</div>
+            <div class="sprite-position">Row 6, Col 10</div>
+          </div>
+        </div>
+        <div class="row-header">Row 7 (Sprites 77-87)</div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_077.png" alt="Sprite 77" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 77</div>
+            <div class="sprite-position">Row 7, Col 0</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_078.png" alt="Sprite 78" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 78</div>
+            <div class="sprite-position">Row 7, Col 1</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_079.png" alt="Sprite 79" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 79</div>
+            <div class="sprite-position">Row 7, Col 2</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_080.png" alt="Sprite 80" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 80</div>
+            <div class="sprite-position">Row 7, Col 3</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_081.png" alt="Sprite 81" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 81</div>
+            <div class="sprite-position">Row 7, Col 4</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_082.png" alt="Sprite 82" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 82</div>
+            <div class="sprite-position">Row 7, Col 5</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_083.png" alt="Sprite 83" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 83</div>
+            <div class="sprite-position">Row 7, Col 6</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_084.png" alt="Sprite 84" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 84</div>
+            <div class="sprite-position">Row 7, Col 7</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_085.png" alt="Sprite 85" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 85</div>
+            <div class="sprite-position">Row 7, Col 8</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_086.png" alt="Sprite 86" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 86</div>
+            <div class="sprite-position">Row 7, Col 9</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_087.png" alt="Sprite 87" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 87</div>
+            <div class="sprite-position">Row 7, Col 10</div>
+          </div>
+        </div>
+        <div class="row-header">Row 8 (Sprites 88-98)</div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_088.png" alt="Sprite 88" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 88</div>
+            <div class="sprite-position">Row 8, Col 0</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_089.png" alt="Sprite 89" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 89</div>
+            <div class="sprite-position">Row 8, Col 1</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_090.png" alt="Sprite 90" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 90</div>
+            <div class="sprite-position">Row 8, Col 2</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_091.png" alt="Sprite 91" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 91</div>
+            <div class="sprite-position">Row 8, Col 3</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_092.png" alt="Sprite 92" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 92</div>
+            <div class="sprite-position">Row 8, Col 4</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_093.png" alt="Sprite 93" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 93</div>
+            <div class="sprite-position">Row 8, Col 5</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_094.png" alt="Sprite 94" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 94</div>
+            <div class="sprite-position">Row 8, Col 6</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_095.png" alt="Sprite 95" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 95</div>
+            <div class="sprite-position">Row 8, Col 7</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_096.png" alt="Sprite 96" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 96</div>
+            <div class="sprite-position">Row 8, Col 8</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_097.png" alt="Sprite 97" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 97</div>
+            <div class="sprite-position">Row 8, Col 9</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_098.png" alt="Sprite 98" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 98</div>
+            <div class="sprite-position">Row 8, Col 10</div>
+          </div>
+        </div>
+        <div class="row-header">Row 9 (Sprites 99-109)</div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_099.png" alt="Sprite 99" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 99</div>
+            <div class="sprite-position">Row 9, Col 0</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_100.png" alt="Sprite 100" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 100</div>
+            <div class="sprite-position">Row 9, Col 1</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_101.png" alt="Sprite 101" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 101</div>
+            <div class="sprite-position">Row 9, Col 2</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_102.png" alt="Sprite 102" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 102</div>
+            <div class="sprite-position">Row 9, Col 3</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_103.png" alt="Sprite 103" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 103</div>
+            <div class="sprite-position">Row 9, Col 4</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_104.png" alt="Sprite 104" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 104</div>
+            <div class="sprite-position">Row 9, Col 5</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_105.png" alt="Sprite 105" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 105</div>
+            <div class="sprite-position">Row 9, Col 6</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_106.png" alt="Sprite 106" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 106</div>
+            <div class="sprite-position">Row 9, Col 7</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_107.png" alt="Sprite 107" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 107</div>
+            <div class="sprite-position">Row 9, Col 8</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_108.png" alt="Sprite 108" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 108</div>
+            <div class="sprite-position">Row 9, Col 9</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_109.png" alt="Sprite 109" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 109</div>
+            <div class="sprite-position">Row 9, Col 10</div>
+          </div>
+        </div>
+        <div class="row-header">Row 10 (Sprites 110-120)</div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_110.png" alt="Sprite 110" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 110</div>
+            <div class="sprite-position">Row 10, Col 0</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_111.png" alt="Sprite 111" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 111</div>
+            <div class="sprite-position">Row 10, Col 1</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_112.png" alt="Sprite 112" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 112</div>
+            <div class="sprite-position">Row 10, Col 2</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_113.png" alt="Sprite 113" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 113</div>
+            <div class="sprite-position">Row 10, Col 3</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_114.png" alt="Sprite 114" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 114</div>
+            <div class="sprite-position">Row 10, Col 4</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_115.png" alt="Sprite 115" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 115</div>
+            <div class="sprite-position">Row 10, Col 5</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_116.png" alt="Sprite 116" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 116</div>
+            <div class="sprite-position">Row 10, Col 6</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_117.png" alt="Sprite 117" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 117</div>
+            <div class="sprite-position">Row 10, Col 7</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_118.png" alt="Sprite 118" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 118</div>
+            <div class="sprite-position">Row 10, Col 8</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_119.png" alt="Sprite 119" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 119</div>
+            <div class="sprite-position">Row 10, Col 9</div>
+          </div>
+        </div>
+        <div class="sprite-card">
+          <div class="sprite-image">
+            <img src="src/assets/sprites/sprite_120.png" alt="Sprite 120" />
+          </div>
+          <div class="sprite-info">
+            <div class="sprite-number">Sprite 120</div>
+            <div class="sprite-position">Row 10, Col 10</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="instructions">
+        <h3>🔧 Next Steps:</h3>
+        <ol>
+          <li>Look at each sprite and identify what it represents</li>
+          <li>Open <code>src/assets/index.ts</code> in your editor</li>
+          <li>
+            Replace the placeholder names with meaningful names like:
+            <ul>
+              <li>
+                <code>sprite_000: require('./sprites/sprite_000.png')</code> →
+                <code>wood_log: require('./sprites/sprite_000.png')</code>
+              </li>
+              <li>
+                <code>sprite_001: require('./sprites/sprite_001.png')</code> →
+                <code>stone: require('./sprites/sprite_001.png')</code>
+              </li>
+            </ul>
+          </li>
+          <li>
+            Update your <code>src/data/items.ts</code> to use the new sprite
+            names
+          </li>
+        </ol>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>First Weapon Test</title>
+    <style>
+      body {
+        background: #2a2a2a;
+        color: white;
+        font-family: Arial, sans-serif;
+        padding: 40px;
+        text-align: center;
+      }
+      .weapon-container {
+        background: #1a1a1a;
+        padding: 30px;
+        border-radius: 10px;
+        display: inline-block;
+        margin: 20px;
+      }
+      .weapon-image {
+        width: 128px;
+        height: 128px;
+        image-rendering: pixelated;
+        background: #333;
+        border: 2px solid #555;
+        border-radius: 8px;
+        display: block;
+        margin: 0 auto 20px auto;
+      }
+      .coords {
+        background: #333;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 20px 0;
+        font-family: monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🗡️ First Weapon Extraction Test</h1>
+
+    <div class="coords">
+      <strong>Adjusted Extraction Coordinates:</strong><br />
+      • Left: <strong>10 blocks</strong> (80 pixels) - moved 1 left<br />
+      • Top: <strong>8 blocks</strong> (64 pixels) - moved 1 up<br />
+      • Size: <strong>4×4 blocks</strong> (32×32 pixels)
+    </div>
+
+    <div class="weapon-container">
+      <h3>Extracted First Weapon</h3>
+      <img
+        src="src/assets/weapons/first_weapon_test.png"
+        alt="First Weapon"
+        class="weapon-image"
+      />
+      <p>Scaled 4x for visibility<br />Actual size: 32×32px</p>
+    </div>
+
+    <p style="color: #4caf50; margin-top: 30px">
+      Does this look like the correct weapon from the top-left corner?
+    </p>
+  </body>
+</html>

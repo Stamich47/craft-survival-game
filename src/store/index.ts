@@ -9,9 +9,10 @@ import craftingReducer from "./craftingSlice";
 
 const persistConfig = {
   key: "root",
-  version: 1, // Increment this to force a fresh start after schema changes
+  version: 4, // Increment this to force a fresh start after schema changes
   storage: AsyncStorage,
   whitelist: ["player", "inventory", "crafting"], // Persist all reducers, but clear active crafting on load
+  debug: __DEV__, // Add debug logging in development
 };
 
 const rootReducer = combineReducers({
@@ -20,19 +21,26 @@ const rootReducer = combineReducers({
   crafting: craftingReducer,
 });
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+// DEVELOPMENT: Temporarily disable persist completely for testing
+const USE_PERSISTENCE = false; // Set to true to re-enable persistence
+
+const finalReducer = USE_PERSISTENCE
+  ? persistReducer(persistConfig, rootReducer)
+  : rootReducer;
 
 export const store = configureStore({
-  reducer: persistedReducer,
+  reducer: finalReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: ["persist/PERSIST", "persist/REHYDRATE"],
+        ignoredActions: USE_PERSISTENCE
+          ? ["persist/PERSIST", "persist/REHYDRATE"]
+          : [],
       },
     }),
 });
 
-export const persistor = persistStore(store);
+export const persistor = USE_PERSISTENCE ? persistStore(store) : null;
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

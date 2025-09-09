@@ -1,0 +1,348 @@
+const sharp = require("sharp");
+const path = require("path");
+const fs = require("fs").promises;
+
+async function createInteractiveWeaponMapper() {
+  const inputPath = path.join(__dirname, "..", "src", "assets", "weapons.png");
+  const outputPath = path.join(__dirname, "..", "weapon-mapper.html");
+
+  try {
+    // Copy the weapons image to be accessible by the HTML
+    await sharp(inputPath)
+      .png()
+      .toFile(path.join(__dirname, "..", "weapons-full.png"));
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Weapon Sprite Mapper</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #2a2a2a; 
+            color: white; 
+            margin: 0;
+        }
+        h1 { color: #4CAF50; }
+        .container { display: flex; gap: 20px; }
+        .image-section { flex: 1; }
+        .controls-section { 
+            width: 300px; 
+            background: #3a3a3a; 
+            padding: 15px; 
+            border-radius: 8px;
+            height: fit-content;
+        }
+        .sprite-sheet { 
+            border: 2px solid #555; 
+            cursor: crosshair; 
+            display: block;
+            max-width: 100%;
+        }
+        .selection-box {
+            position: absolute;
+            border: 2px solid #4CAF50;
+            background: rgba(76, 175, 80, 0.2);
+            pointer-events: none;
+        }
+        .coordinates {
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+        .button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px 0;
+            width: 100%;
+        }
+        .button:hover { background: #45a049; }
+        .sprite-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .sprite-item {
+            padding: 5px;
+            border-bottom: 1px solid #555;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .image-container {
+            position: relative;
+            display: inline-block;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 5px;
+            margin: 5px 0;
+            background: #1a1a1a;
+            border: 1px solid #555;
+            color: white;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🗡️ Interactive Weapon Sprite Mapper</h1>
+    <p>Click and drag on the image to select weapon sprites. The coordinates will be recorded for extraction.</p>
+    
+    <div class="container">
+        <div class="image-section">
+            <div class="image-container">
+                <img id="spriteSheet" src="weapons-full.png" alt="Weapon Sprites" class="sprite-sheet">
+                <div id="selectionBox" class="selection-box" style="display: none;"></div>
+            </div>
+        </div>
+        
+        <div class="controls-section">
+            <h3>Selection Info</h3>
+            <div class="coordinates">
+                <div>Start: <span id="startCoords">-</span></div>
+                <div>End: <span id="endCoords">-</span></div>
+                <div>Size: <span id="sizeInfo">-</span></div>
+            </div>
+            
+            <div>
+                <label>Weapon Name:</label>
+                <input type="text" id="weaponName" placeholder="e.g., iron_sword">
+            </div>
+            
+            <div>
+                <label>Weapon Type:</label>
+                <select id="weaponType" style="width: 100%; padding: 5px; background: #1a1a1a; color: white; border: 1px solid #555;">
+                    <option value="sword">Sword</option>
+                    <option value="axe">Axe</option>
+                    <option value="pickaxe">Pickaxe</option>
+                    <option value="bow">Bow</option>
+                    <option value="staff">Staff</option>
+                    <option value="dagger">Dagger</option>
+                    <option value="hammer">Hammer</option>
+                    <option value="spear">Spear</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <button class="button" onclick="addSprite()">Add Sprite</button>
+            <button class="button" onclick="clearSelection()">Clear Selection</button>
+            <button class="button" onclick="exportSprites()">Export Extraction Code</button>
+            
+            <h4>Captured Sprites (<span id="spriteCount">0</span>)</h4>
+            <div id="spriteList" class="sprite-list"></div>
+            
+            <div id="exportCode" style="display: none;">
+                <h4>Extraction Code:</h4>
+                <textarea id="codeOutput" style="width: 100%; height: 200px; background: #1a1a1a; color: #4CAF50; border: 1px solid #555;" readonly></textarea>
+                <button class="button" onclick="copyCode()">Copy Code</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isSelecting = false;
+        let startX = 0, startY = 0;
+        let sprites = [];
+        
+        const img = document.getElementById('spriteSheet');
+        const selectionBox = document.getElementById('selectionBox');
+        
+        img.addEventListener('mousedown', startSelection);
+        img.addEventListener('mousemove', updateSelection);
+        img.addEventListener('mouseup', endSelection);
+        
+        function startSelection(e) {
+            const rect = img.getBoundingClientRect();
+            const scaleX = img.naturalWidth / rect.width;
+            const scaleY = img.naturalHeight / rect.height;
+            
+            startX = (e.clientX - rect.left) * scaleX;
+            startY = (e.clientY - rect.top) * scaleY;
+            
+            isSelecting = true;
+            selectionBox.style.display = 'block';
+            selectionBox.style.left = e.clientX - rect.left + 'px';
+            selectionBox.style.top = e.clientY - rect.top + 'px';
+            selectionBox.style.width = '0px';
+            selectionBox.style.height = '0px';
+            
+            document.getElementById('startCoords').textContent = Math.round(startX) + ', ' + Math.round(startY);
+        }
+        
+        function updateSelection(e) {
+            if (!isSelecting) return;
+            
+            const rect = img.getBoundingClientRect();
+            const currentX = e.clientX - rect.left;
+            const currentY = e.clientY - rect.top;
+            
+            const boxLeft = Math.min(currentX, startX / (img.naturalWidth / rect.width));
+            const boxTop = Math.min(currentY, startY / (img.naturalHeight / rect.height));
+            const boxWidth = Math.abs(currentX - startX / (img.naturalWidth / rect.width));
+            const boxHeight = Math.abs(currentY - startY / (img.naturalHeight / rect.height));
+            
+            selectionBox.style.left = boxLeft + 'px';
+            selectionBox.style.top = boxTop + 'px';
+            selectionBox.style.width = boxWidth + 'px';
+            selectionBox.style.height = boxHeight + 'px';
+            
+            const scaleX = img.naturalWidth / rect.width;
+            const scaleY = img.naturalHeight / rect.height;
+            const endX = (e.clientX - rect.left) * scaleX;
+            const endY = (e.clientY - rect.top) * scaleY;
+            
+            document.getElementById('endCoords').textContent = Math.round(endX) + ', ' + Math.round(endY);
+            document.getElementById('sizeInfo').textContent = Math.round(Math.abs(endX - startX)) + ' × ' + Math.round(Math.abs(endY - startY));
+        }
+        
+        function endSelection(e) {
+            if (!isSelecting) return;
+            isSelecting = false;
+        }
+        
+        function addSprite() {
+            const startCoords = document.getElementById('startCoords').textContent;
+            const endCoords = document.getElementById('endCoords').textContent;
+            const sizeInfo = document.getElementById('sizeInfo').textContent;
+            const weaponName = document.getElementById('weaponName').value || 'unnamed_weapon_' + sprites.length;
+            const weaponType = document.getElementById('weaponType').value;
+            
+            if (startCoords === '-' || endCoords === '-') {
+                alert('Please select an area first!');
+                return;
+            }
+            
+            const [startXVal, startYVal] = startCoords.split(', ').map(Number);
+            const [endXVal, endYVal] = endCoords.split(', ').map(Number);
+            
+            const sprite = {
+                name: weaponName,
+                type: weaponType,
+                left: Math.min(startXVal, endXVal),
+                top: Math.min(startYVal, endYVal),
+                width: Math.abs(endXVal - startXVal),
+                height: Math.abs(endYVal - startYVal)
+            };
+            
+            sprites.push(sprite);
+            updateSpriteList();
+            clearSelection();
+            document.getElementById('weaponName').value = '';
+        }
+        
+        function clearSelection() {
+            selectionBox.style.display = 'none';
+            document.getElementById('startCoords').textContent = '-';
+            document.getElementById('endCoords').textContent = '-';
+            document.getElementById('sizeInfo').textContent = '-';
+        }
+        
+        function updateSpriteList() {
+            const list = document.getElementById('spriteList');
+            const count = document.getElementById('spriteCount');
+            
+            list.innerHTML = sprites.map((sprite, i) => 
+                \`<div class="sprite-item">
+                    \${i + 1}. \${sprite.name} (\${sprite.type})
+                    <br>Pos: \${sprite.left},\${sprite.top} Size: \${sprite.width}×\${sprite.height}
+                    <button onclick="removeSprite(\${i})" style="float: right; background: #f44336; border: none; color: white; padding: 2px 6px; cursor: pointer;">×</button>
+                </div>\`
+            ).join('');
+            
+            count.textContent = sprites.length;
+        }
+        
+        function removeSprite(index) {
+            sprites.splice(index, 1);
+            updateSpriteList();
+        }
+        
+        function exportSprites() {
+            if (sprites.length === 0) {
+                alert('No sprites captured yet!');
+                return;
+            }
+            
+            let code = \`const sharp = require('sharp');
+const path = require('path');
+const fs = require('fs').promises;
+
+async function extractSelectedWeapons() {
+  const inputPath = path.join(__dirname, '..', 'src', 'assets', 'weapons.png');
+  const outputDir = path.join(__dirname, '..', 'src', 'assets', 'weapons');
+
+  await fs.mkdir(outputDir, { recursive: true });
+
+  const sprites = [
+\`;
+
+            sprites.forEach((sprite, i) => {
+                code += \`    { name: '\${sprite.name}', type: '\${sprite.type}', left: \${sprite.left}, top: \${sprite.top}, width: \${sprite.width}, height: \${sprite.height} },
+\`;
+            });
+
+            code += \`  ];
+
+  for (const sprite of sprites) {
+    await sharp(inputPath)
+      .extract({
+        left: Math.round(sprite.left),
+        top: Math.round(sprite.top),
+        width: Math.round(sprite.width),
+        height: Math.round(sprite.height),
+      })
+      .png()
+      .toFile(path.join(outputDir, \`\${sprite.name}.png\`));
+    
+    console.log(\`Extracted: \${sprite.name}.png (\${sprite.width}×\${sprite.height})\`);
+  }
+
+  console.log('✅ Extraction complete!');
+}
+
+extractSelectedWeapons();\`;
+            
+            document.getElementById('codeOutput').value = code;
+            document.getElementById('exportCode').style.display = 'block';
+        }
+        
+        function copyCode() {
+            const textarea = document.getElementById('codeOutput');
+            textarea.select();
+            document.execCommand('copy');
+            alert('Code copied to clipboard!');
+        }
+    </script>
+</body>
+</html>`;
+
+    await fs.writeFile(outputPath, html);
+    console.log("✅ Created weapon-mapper.html");
+    console.log("✅ Copied full weapon sheet to weapons-full.png");
+    console.log("\n🎯 INSTRUCTIONS:");
+    console.log("1. Open weapon-mapper.html in your browser");
+    console.log("2. Click and drag to select individual weapon sprites");
+    console.log("3. Name each weapon and set its type");
+    console.log('4. Click "Add Sprite" to save the selection');
+    console.log("5. Repeat for all weapons you want");
+    console.log(
+      '6. Click "Export Extraction Code" to get the extraction script'
+    );
+    console.log("7. Save the generated code as a new script and run it");
+  } catch (error) {
+    console.error("❌ Error creating mapper:", error.message);
+  }
+}
+
+createInteractiveWeaponMapper();

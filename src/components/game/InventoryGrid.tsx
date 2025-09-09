@@ -12,6 +12,7 @@ export const InventoryGrid: React.FC = () => {
   const renderSlot = ({ item }: { item: any }) => (
     <InventorySlot
       slot={item}
+      size={80}
       onPress={() => {
         // Handle slot press (show item details, use item, etc.)
         console.log("Slot pressed:", item);
@@ -26,7 +27,7 @@ export const InventoryGrid: React.FC = () => {
         data={inventory.slots}
         renderItem={renderSlot}
         keyExtractor={(item) => item.id}
-        numColumns={5}
+        numColumns={4}
         contentContainerStyle={styles.grid}
         showsVerticalScrollIndicator={false}
       />

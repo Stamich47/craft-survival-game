@@ -20,6 +20,7 @@ import { PlayerStats, InventoryGrid, CraftingPanel } from "../components/game";
 import { ToastNotification } from "../components/ui/ToastNotification";
 import { createDefaultPlayer } from "../utils";
 import { ITEMS, RECIPES } from "../data";
+import { clearAllGameData } from "../utils/clearGameData";
 
 const { width } = Dimensions.get("window");
 
@@ -29,8 +30,6 @@ export const GameScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"inventory" | "crafting">(
     "inventory"
   );
-
-  const [hasGivenDebugResources, setHasGivenDebugResources] = useState(false);
 
   // Toast notification state
   const [toastVisible, setToastVisible] = useState(false);
@@ -45,52 +44,44 @@ export const GameScreen: React.FC = () => {
   useEffect(() => {
     console.log("GameScreen useEffect running", {
       player: !!player,
-      hasGivenDebugResources,
     });
+
     // Clear any active crafting from previous session
     dispatch(clearActiveCrafting());
 
     // Initialize player if not exists
     if (!player) {
-      console.log("Creating new player and discovering recipes");
+      console.log("Creating new player with expanded starting inventory");
       const newPlayer = createDefaultPlayer("Survivor");
       dispatch(createPlayer(newPlayer));
 
-      // Give starting items
-      dispatch(addItem({ item: ITEMS.wood, quantity: 10 }));
-      dispatch(addItem({ item: ITEMS.stone, quantity: 5 }));
-      dispatch(addItem({ item: ITEMS.berries, quantity: 3 }));
-      dispatch(addItem({ item: ITEMS.water, quantity: 2 }));
+      // Starting materials for testing multiple crafting recipes
+      dispatch(addItem({ item: ITEMS.wood, quantity: 15 }));
+      dispatch(addItem({ item: ITEMS.fibers, quantity: 10 }));
 
-      // Discover basic recipes
+      // Discover basic crafting recipes
       dispatch(discoverRecipe("wooden_plank"));
       dispatch(discoverRecipe("wooden_axe"));
-      dispatch(discoverRecipe("wooden_pickaxe"));
+      dispatch(discoverRecipe("rope"));
     } else {
       console.log("Player already exists, skipping initialization");
     }
 
-    // ALWAYS discover recipes to ensure they're available (temporary fix)
-    console.log("Force discovering recipes");
+    // Ensure recipes are available for testing
+    console.log("Ensuring test recipes are discovered");
     dispatch(discoverRecipe("wooden_plank"));
     dispatch(discoverRecipe("wooden_axe"));
-    dispatch(discoverRecipe("wooden_pickaxe"));
+    dispatch(discoverRecipe("rope"));
 
-    // TEMPORARY: Add more wood for testing (remove this later)
-    // This will give you wood only once per app session during development
-    if (
-      player &&
-      !hasGivenDebugResources &&
-      process.env.NODE_ENV === "development"
-    ) {
-      dispatch(addItem({ item: ITEMS.wood, quantity: 10 }));
-      dispatch(addItem({ item: ITEMS.stone, quantity: 5 }));
-      setHasGivenDebugResources(true);
-    }
-
-    // Set available recipes
-    dispatch(setAvailableRecipes(Object.values(RECIPES)));
-  }, []); // Run only on mount
+    // Only make testing recipes available
+    dispatch(
+      setAvailableRecipes([
+        RECIPES.wooden_plank,
+        RECIPES.wooden_axe,
+        RECIPES.rope,
+      ])
+    );
+  }, [dispatch]); // Run only when dispatch changes
 
   if (!player) {
     return (
@@ -103,6 +94,27 @@ export const GameScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
+        {/* DEVELOPMENT ONLY: Reset button - remove after testing */}
+        {__DEV__ && (
+          <TouchableOpacity
+            style={{
+              position: "absolute",
+              top: 10,
+              right: 10,
+              backgroundColor: "#ff4444",
+              padding: 8,
+              borderRadius: 4,
+              zIndex: 1000,
+            }}
+            onPress={async () => {
+              console.log("🔄 Manual reset triggered...");
+              await clearAllGameData();
+            }}
+          >
+            <Text style={{ color: "white", fontSize: 12 }}>RESET DATA</Text>
+          </TouchableOpacity>
+        )}
+
         {/* Player Info Header */}
         <View style={styles.header}>
           <Text style={styles.playerName}>{player.name}</Text>

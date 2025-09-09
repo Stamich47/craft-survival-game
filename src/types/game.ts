@@ -1,4 +1,5 @@
 // Game Types for Crafting/Survival Game
+import { ImageSourcePropType } from "react-native";
 
 export interface Player {
   id: string;
@@ -30,7 +31,7 @@ export interface Item {
   stackable: boolean;
   maxStack: number;
   value: number;
-  icon?: string;
+  icon?: ImageSourcePropType;
 }
 
 export enum ItemType {

@@ -11,46 +11,56 @@ interface InventorySlotProps {
 export const InventorySlot: React.FC<InventorySlotProps> = ({
   slot,
   onPress,
-  size = 60,
+  size = 80,
 }) => {
   return (
-    <TouchableOpacity
-      style={[styles.slot, { width: size, height: size }]}
-      onPress={onPress}
-      disabled={!onPress}
-    >
-      {slot.item ? (
-        <>
-          {slot.item.icon ? (
-            <Image source={{ uri: slot.item.icon }} style={styles.itemIcon} />
-          ) : (
-            <View style={styles.placeholderIcon}>
-              <Text style={styles.placeholderText}>
-                {slot.item.name.charAt(0).toUpperCase()}
-              </Text>
-            </View>
-          )}
-          {slot.quantity > 1 && (
-            <View style={styles.quantityBadge}>
-              <Text style={styles.quantityText}>{slot.quantity}</Text>
-            </View>
-          )}
-        </>
-      ) : (
-        <View style={styles.emptySlot} />
+    <View style={styles.slotContainer}>
+      <TouchableOpacity
+        style={[styles.slot, { width: size, height: size }]}
+        onPress={onPress}
+        disabled={!onPress}
+      >
+        {slot.item ? (
+          <>
+            {slot.item.icon ? (
+              <Image source={slot.item.icon} style={styles.itemIcon} />
+            ) : (
+              <View style={styles.placeholderIcon}>
+                <Text style={styles.placeholderText}>
+                  {slot.item.name.charAt(0).toUpperCase()}
+                </Text>
+              </View>
+            )}
+            {slot.quantity > 1 && (
+              <View style={styles.quantityBadge}>
+                <Text style={styles.quantityText}>{slot.quantity}</Text>
+              </View>
+            )}
+          </>
+        ) : (
+          <View style={styles.emptySlot} />
+        )}
+      </TouchableOpacity>
+      {slot.item && (
+        <Text style={styles.itemName} numberOfLines={2}>
+          {slot.item.name}
+        </Text>
       )}
-    </TouchableOpacity>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  slotContainer: {
+    alignItems: "center",
+    margin: 4,
+  },
   slot: {
     backgroundColor: "#2a2a2a",
     borderRadius: 8,
     borderWidth: 2,
     borderColor: "#444",
     padding: 4,
-    margin: 2,
     position: "relative",
     justifyContent: "center",
     alignItems: "center",
@@ -93,5 +103,13 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 10,
     fontWeight: "bold",
+  },
+  itemName: {
+    color: "#fff",
+    fontSize: 10,
+    textAlign: "center",
+    marginTop: 4,
+    width: 80,
+    lineHeight: 12,
   },
 });

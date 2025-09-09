@@ -7,26 +7,38 @@ import { store, persistor } from "./src/store";
 import { GameScreen } from "./src/screens";
 
 export default function App() {
+  const AppContent = () => (
+    <>
+      <StatusBar style="light" />
+      <GameScreen />
+    </>
+  );
+
   return (
     <Provider store={store}>
-      <PersistGate
-        loading={
-          <View
-            style={{
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
-              backgroundColor: "#1a1a1a",
-            }}
-          >
-            <Text style={{ color: "#fff", fontSize: 18 }}>Loading Game...</Text>
-          </View>
-        }
-        persistor={persistor}
-      >
-        <StatusBar style="light" />
-        <GameScreen />
-      </PersistGate>
+      {persistor ? (
+        <PersistGate
+          loading={
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                backgroundColor: "#1a1a1a",
+              }}
+            >
+              <Text style={{ color: "#fff", fontSize: 18 }}>
+                Loading Game...
+              </Text>
+            </View>
+          }
+          persistor={persistor}
+        >
+          <AppContent />
+        </PersistGate>
+      ) : (
+        <AppContent />
+      )}
     </Provider>
   );
 }
