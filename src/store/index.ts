@@ -7,12 +7,13 @@ import playerReducer from "./playerSlice";
 import inventoryReducer from "./inventorySlice";
 import craftingReducer from "./craftingSlice";
 import uiReducer from "./uiSlice";
+import worldReducer from "./worldSlice";
 
 const persistConfig = {
   key: "root",
   version: 4, // Increment this to force a fresh start after schema changes
   storage: AsyncStorage,
-  whitelist: ["player", "inventory", "crafting"], // UI state should not be persisted
+  whitelist: ["player", "inventory", "crafting", "world"], // UI state should not be persisted
   debug: __DEV__, // Add debug logging in development
 };
 
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
   inventory: inventoryReducer,
   crafting: craftingReducer,
   ui: uiReducer,
+  world: worldReducer,
 });
 
 // Enable persistence to save player progress between sessions

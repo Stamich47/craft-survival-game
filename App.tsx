@@ -1,16 +1,62 @@
-import React from "react";
+import React, { useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
-import { View, Text } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+} from "react-native";
 import { store, persistor } from "./src/store";
-import { GameScreen } from "./src/screens";
+import { GameScreen, VoxelGameScreen } from "./src/screens";
 
 export default function App() {
+  const [currentScreen, setCurrentScreen] = useState<"inventory" | "voxel">(
+    "voxel"
+  );
+
   const AppContent = () => (
     <>
       <StatusBar style="light" />
-      <GameScreen />
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.screenToggle}>
+          <TouchableOpacity
+            style={[
+              styles.toggleButton,
+              currentScreen === "inventory" && styles.activeButton,
+            ]}
+            onPress={() => setCurrentScreen("inventory")}
+          >
+            <Text
+              style={[
+                styles.toggleText,
+                currentScreen === "inventory" && styles.activeText,
+              ]}
+            >
+              Inventory/Crafting
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.toggleButton,
+              currentScreen === "voxel" && styles.activeButton,
+            ]}
+            onPress={() => setCurrentScreen("voxel")}
+          >
+            <Text
+              style={[
+                styles.toggleText,
+                currentScreen === "voxel" && styles.activeText,
+              ]}
+            >
+              Voxel World
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+      {currentScreen === "inventory" ? <GameScreen /> : <VoxelGameScreen />}
     </>
   );
 
@@ -42,3 +88,37 @@ export default function App() {
     </Provider>
   );
 }
+
+const styles = StyleSheet.create({
+  safeArea: {
+    backgroundColor: "#1a1a1a",
+  },
+  screenToggle: {
+    flexDirection: "row",
+    backgroundColor: "#1a1a1a",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#333",
+  },
+  toggleButton: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    marginHorizontal: 4,
+    borderRadius: 6,
+    backgroundColor: "#333",
+    alignItems: "center",
+  },
+  activeButton: {
+    backgroundColor: "#4CAF50",
+  },
+  toggleText: {
+    color: "#ccc",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  activeText: {
+    color: "#fff",
+  },
+});
