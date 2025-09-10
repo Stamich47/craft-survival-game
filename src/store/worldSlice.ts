@@ -1,24 +1,32 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-// Voxel types
-export enum VoxelType {
-  AIR = 0,
+// Tile types for 2D isometric world
+export enum TileType {
+  GRASS = 0,
   DIRT = 1,
-  GRASS = 2,
-  STONE = 3,
-  SAND = 4,
-  WATER = 5,
-  WOOD = 6,
-  LEAVES = 7,
+  STONE = 2,
+  SAND = 3,
+  WATER = 4,
+  TREE = 5,
+  MOUNTAIN = 6,
+}
+
+// Character state
+export interface Character {
+  x: number;
+  y: number;
+  targetX?: number;
+  targetY?: number;
+  isMoving: boolean;
 }
 
 export interface WorldState {
-  world: number[][][]; // 3D voxel array
+  tiles: number[][]; // 2D tile array
   worldSize: {
     width: number;
     height: number;
-    depth: number;
   };
+  character: Character;
   camera: {
     offsetX: number;
     offsetY: number;
@@ -28,11 +36,15 @@ export interface WorldState {
 }
 
 const initialState: WorldState = {
-  world: [],
+  tiles: [],
   worldSize: {
-    width: 16,
-    height: 16,
-    depth: 8,
+    width: 20,
+    height: 20,
+  },
+  character: {
+    x: 10,
+    y: 10,
+    isMoving: false,
   },
   camera: {
     offsetX: 0,
@@ -48,77 +60,114 @@ const worldSlice = createSlice({
   reducers: {
     generateWorld: (
       state,
-      action: PayloadAction<{ width?: number; height?: number; depth?: number }>
+      action: PayloadAction<{ width?: number; height?: number }>
     ) => {
-      const { width = 16, height = 16, depth = 8 } = action.payload;
+      const { width = 20, height = 20 } = action.payload;
 
-      state.worldSize = { width, height, depth };
-      state.world = [];
+      state.worldSize = { width, height };
+      state.tiles = [];
 
-      // Generate the world
+      // Generate 2D tile-based terrain
       for (let x = 0; x < width; x++) {
-        state.world[x] = [];
+        state.tiles[x] = [];
         for (let y = 0; y < height; y++) {
-          state.world[x][y] = [];
-          for (let z = 0; z < depth; z++) {
-            if (z === 0) {
-              // Bedrock layer
-              state.world[x][y][z] = VoxelType.STONE;
-            } else if (z === 1 || z === 2) {
-              // Dirt layers
-              state.world[x][y][z] = VoxelType.DIRT;
-            } else if (z === 3) {
-              // Surface layer - grass
-              state.world[x][y][z] = VoxelType.GRASS;
-            } else if (z === 4 && Math.random() > 0.8) {
-              // Occasional trees (wood)
-              state.world[x][y][z] = VoxelType.WOOD;
-            } else if (
-              z === 5 &&
-              state.world[x][y][z - 1] === VoxelType.WOOD &&
-              Math.random() > 0.5
-            ) {
-              // Tree leaves above wood
-              state.world[x][y][z] = VoxelType.LEAVES;
-            } else {
-              // Air
-              state.world[x][y][z] = VoxelType.AIR;
-            }
+          // Create height map using noise-like function for terrain variation
+          const heightNoise1 = Math.sin(x * 0.2) * Math.cos(y * 0.2);
+          const heightNoise2 = Math.sin(x * 0.05) * Math.cos(y * 0.05) * 2;
+          const terrainValue = heightNoise1 + heightNoise2;
+
+          // Determine tile type based on terrain value and position
+          if (terrainValue < -1.5) {
+            state.tiles[x][y] = TileType.WATER;
+          } else if (terrainValue < -0.5) {
+            state.tiles[x][y] = TileType.SAND;
+          } else if (terrainValue > 1.5) {
+            state.tiles[x][y] = TileType.MOUNTAIN;
+          } else if (terrainValue > 0.8) {
+            state.tiles[x][y] = TileType.STONE;
+          } else if (Math.random() > 0.85) {
+            // Randomly place trees on grass areas
+            state.tiles[x][y] = TileType.TREE;
+          } else if (Math.random() > 0.9) {
+            // Some dirt patches
+            state.tiles[x][y] = TileType.DIRT;
+          } else {
+            // Default to grass
+            state.tiles[x][y] = TileType.GRASS;
           }
         }
       }
 
+      // Place character in a good starting position
+      state.character.x = Math.floor(width / 2);
+      state.character.y = Math.floor(height / 2);
+      state.character.isMoving = false;
+
       state.isLoaded = true;
     },
 
-    setVoxel: (
+    setTile: (
       state,
       action: PayloadAction<{
         x: number;
         y: number;
-        z: number;
-        type: VoxelType;
+        type: TileType;
       }>
     ) => {
-      const { x, y, z, type } = action.payload;
+      const { x, y, type } = action.payload;
+      if (
+        x >= 0 &&
+        x < state.worldSize.width &&
+        y >= 0 &&
+        y < state.worldSize.height
+      ) {
+        state.tiles[x][y] = type;
+      }
+    },
+
+    getTile: (state, action: PayloadAction<{ x: number; y: number }>) => {
+      // This reducer doesn't modify state, it's just for consistency
+      // Use a selector instead for getting tile data
+    },
+
+    // Character movement actions
+    moveCharacter: (state, action: PayloadAction<{ x: number; y: number }>) => {
+      const { x, y } = action.payload;
+
       if (
         x >= 0 &&
         x < state.worldSize.width &&
         y >= 0 &&
         y < state.worldSize.height &&
-        z >= 0 &&
-        z < state.worldSize.depth
+        state.tiles[x][y] !== TileType.WATER &&
+        state.tiles[x][y] !== TileType.MOUNTAIN
       ) {
-        state.world[x][y][z] = type;
+        console.log("✅ Moved to:", x, y);
+        // Move character immediately to the new position
+        state.character.x = x;
+        state.character.y = y;
+        state.character.targetX = x;
+        state.character.targetY = y;
+        state.character.isMoving = false; // Not moving since we teleport instantly
+      } else {
+        console.log("❌ Blocked:", x, y, "(out of bounds or unwalkable)");
       }
     },
 
-    getVoxel: (
+    updateCharacterPosition: (
       state,
-      action: PayloadAction<{ x: number; y: number; z: number }>
+      action: PayloadAction<{ x: number; y: number }>
     ) => {
-      // This reducer doesn't modify state, it's just for consistency
-      // Use a selector instead for getting voxel data
+      const { x, y } = action.payload;
+      state.character.x = x;
+      state.character.y = y;
+
+      // Check if we reached the target
+      if (state.character.targetX === x && state.character.targetY === y) {
+        state.character.isMoving = false;
+        state.character.targetX = undefined;
+        state.character.targetY = undefined;
+      }
     },
 
     moveCamera: (
@@ -143,64 +192,33 @@ const worldSlice = createSlice({
       state.camera.zoom = Math.max(0.5, Math.min(3, action.payload));
     },
 
-    // Mining action - remove a voxel and potentially add to inventory
-    mineVoxel: (
-      state,
-      action: PayloadAction<{ x: number; y: number; z: number }>
-    ) => {
-      const { x, y, z } = action.payload;
-      if (
-        x >= 0 &&
-        x < state.worldSize.width &&
-        y >= 0 &&
-        y < state.worldSize.height &&
-        z >= 0 &&
-        z < state.worldSize.depth
-      ) {
-        const voxelType = state.world[x][y][z];
-        if (voxelType !== VoxelType.AIR) {
-          state.world[x][y][z] = VoxelType.AIR;
-          // TODO: Add the mined material to inventory based on voxelType
-        }
-      }
-    },
-
-    // Place a voxel from inventory
-    placeVoxel: (
-      state,
-      action: PayloadAction<{
-        x: number;
-        y: number;
-        z: number;
-        type: VoxelType;
-      }>
-    ) => {
-      const { x, y, z, type } = action.payload;
-      if (
-        x >= 0 &&
-        x < state.worldSize.width &&
-        y >= 0 &&
-        y < state.worldSize.height &&
-        z >= 0 &&
-        z < state.worldSize.depth &&
-        state.world[x][y][z] === VoxelType.AIR
-      ) {
-        state.world[x][y][z] = type;
-        // TODO: Remove the placed material from inventory
-      }
+    resetWorld: (state) => {
+      state.tiles = [];
+      state.isLoaded = false;
+      state.character = {
+        x: 10,
+        y: 10,
+        isMoving: false,
+      };
+      state.camera = {
+        offsetX: 0,
+        offsetY: 0,
+        zoom: 1,
+      };
     },
   },
 });
 
 export const {
   generateWorld,
-  setVoxel,
-  getVoxel,
+  setTile,
+  getTile,
+  moveCharacter,
+  updateCharacterPosition,
   moveCamera,
   setCameraPosition,
   setZoom,
-  mineVoxel,
-  placeVoxel,
+  resetWorld,
 } = worldSlice.actions;
 
 export default worldSlice.reducer;

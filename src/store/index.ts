@@ -11,7 +11,7 @@ import worldReducer from "./worldSlice";
 
 const persistConfig = {
   key: "root",
-  version: 4, // Increment this to force a fresh start after schema changes
+  version: 5, // Increment this to force a fresh start after schema changes
   storage: AsyncStorage,
   whitelist: ["player", "inventory", "crafting", "world"], // UI state should not be persisted
   debug: __DEV__, // Add debug logging in development

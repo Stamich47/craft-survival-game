@@ -16,11 +16,17 @@ import {
   setAvailableRecipes,
   clearActiveCrafting,
 } from "../store/craftingSlice";
-import { PlayerStats, InventoryGrid, CraftingPanel } from "../components/game";
+import {
+  PlayerStats,
+  InventoryGrid,
+  CraftingPanel,
+  HorizontalPlayerStats,
+} from "../components/game";
 import { ToastNotification } from "../components/ui/ToastNotification";
 import { createDefaultPlayer } from "../utils";
 import { ITEMS, RECIPES } from "../data";
 import { clearAllGameData } from "../utils/clearGameData";
+import { craftingTimer } from "../services/CraftingTimerService";
 
 const { width } = Dimensions.get("window");
 
@@ -44,10 +50,14 @@ export const GameScreen: React.FC = () => {
   useEffect(() => {
     console.log("GameScreen useEffect running", {
       player: !!player,
+      playerId: player?.id,
     });
 
     // Clear any active crafting from previous session
     dispatch(clearActiveCrafting());
+
+    // Register for background crafting completion notifications
+    craftingTimer.onCraftingComplete(showCraftingNotification);
 
     // Initialize player if not exists (first time setup)
     if (!player) {
@@ -74,25 +84,36 @@ export const GameScreen: React.FC = () => {
       console.log("Player already exists, loading saved data");
     }
 
-    // Ensure test recipes are always available (for development)
-    console.log("Ensuring test recipes are available");
-    dispatch(discoverRecipe("wooden_plank"));
-    dispatch(discoverRecipe("wooden_axe"));
-    dispatch(discoverRecipe("wooden_pickaxe"));
-    dispatch(discoverRecipe("wooden_sword"));
-    dispatch(discoverRecipe("rope"));
+    // Cleanup callback when component unmounts
+    return () => {
+      craftingTimer.removeCompletionCallback(showCraftingNotification);
+    };
+  }, [dispatch, player]); // Changed dependency to just player
 
-    // Set available recipes for crafting panel
-    dispatch(
-      setAvailableRecipes([
-        RECIPES.wooden_plank,
-        RECIPES.wooden_axe,
-        RECIPES.wooden_pickaxe,
-        RECIPES.wooden_sword,
-        RECIPES.rope,
-      ])
-    );
-  }, [dispatch, player?.id]); // Depend on player.id to avoid re-running when player object changes
+  // Separate effect for setting up recipes when player exists
+  useEffect(() => {
+    if (player) {
+      console.log("Setting up recipes for existing player");
+
+      // Ensure test recipes are always available (for development)
+      dispatch(discoverRecipe("wooden_plank"));
+      dispatch(discoverRecipe("wooden_axe"));
+      dispatch(discoverRecipe("wooden_pickaxe"));
+      dispatch(discoverRecipe("wooden_sword"));
+      dispatch(discoverRecipe("rope"));
+
+      // Set available recipes for crafting panel
+      dispatch(
+        setAvailableRecipes([
+          RECIPES.wooden_plank,
+          RECIPES.wooden_axe,
+          RECIPES.wooden_pickaxe,
+          RECIPES.wooden_sword,
+          RECIPES.rope,
+        ])
+      );
+    }
+  }, [dispatch, player]);
 
   if (!player) {
     return (
@@ -126,17 +147,10 @@ export const GameScreen: React.FC = () => {
           </TouchableOpacity>
         )}
 
-        {/* Player Info Header */}
-        <View style={styles.header}>
-          <Text style={styles.playerName}>{player.name}</Text>
-          <Text style={styles.playerLevel}>Level {player.level}</Text>
-          <Text style={styles.playerExp}>
-            EXP: {player.experience} / {player.level * 100}
-          </Text>
+        {/* Compact Player Stats Header */}
+        <View style={styles.compactHeader}>
+          <HorizontalPlayerStats />
         </View>
-
-        {/* Player Stats */}
-        <PlayerStats />
 
         {/* Tab Navigation */}
         <View style={styles.tabContainer}>
@@ -214,6 +228,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
     marginTop: 8,
     borderRadius: 12,
+  },
+  compactHeader: {
+    backgroundColor: "rgba(0,0,0,0.8)",
+    marginHorizontal: 8,
+    marginTop: 8,
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
   },
   playerName: {
     fontSize: 24,

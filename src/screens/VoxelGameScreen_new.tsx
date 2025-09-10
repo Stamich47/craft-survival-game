@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
   SafeAreaView,
   StyleSheet,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   Dimensions,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,15 +13,9 @@ import {
   generateWorld,
   setCameraPosition,
   moveCharacter,
-  resetWorld,
 } from "../store/worldSlice";
 import { SVGTileWorld } from "../components/game/SVGTileWorld";
-import {
-  HorizontalPlayerStats,
-  CraftingProgressOverlay,
-} from "../components/game";
-import { ToastNotification } from "../components/ui/ToastNotification";
-import { craftingTimer } from "../services/CraftingTimerService";
+import { HorizontalPlayerStats } from "../components/game";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -32,29 +25,19 @@ const screenToTile = (
   screenY: number,
   tileSize: number,
   offsetX: number,
-  offsetY: number,
-  characterX: number,
-  characterY: number
+  offsetY: number
 ) => {
-  // Character is always at screen center (adjusted for UI)
-  const characterScreenX = screenWidth / 2;
-  const characterScreenY = screenHeight / 2 - 50;
+  // Adjust for camera offset and screen center
+  const adjustedX = screenX - screenWidth / 2 - offsetX;
+  const adjustedY = screenY - screenHeight / 2 - offsetY;
 
-  // Calculate the difference from character screen position, accounting for world offset
-  const deltaX = screenX - characterScreenX - offsetX;
-  const deltaY = screenY - characterScreenY - offsetY;
-
-  // Convert screen delta to tile delta using inverse isometric transformation
-  // Forward: isoX = (x - y) * (tileSize / 2), isoY = (x + y) * (tileSize / 4)
-
-  const xMinusY = deltaX / (tileSize / 2);
-  const xPlusY = deltaY / (tileSize / 4);
-
-  const tileDeltaX = (xMinusY + xPlusY) / 2;
-  const tileDeltaY = (xPlusY - xMinusY) / 2;
-
-  const tileX = Math.round(characterX + tileDeltaX);
-  const tileY = Math.round(characterY + tileDeltaY);
+  // Convert from isometric to tile coordinates
+  const tileX = Math.round(
+    (adjustedX / (tileSize / 2) + adjustedY / (tileSize / 4)) / 2
+  );
+  const tileY = Math.round(
+    (adjustedY / (tileSize / 4) - adjustedX / (tileSize / 2)) / 2
+  );
 
   return { x: tileX, y: tileY };
 };
@@ -67,16 +50,6 @@ export const VoxelGameScreen: React.FC = () => {
   const isLoaded = useSelector((state: RootState) => state.world.isLoaded);
   const player = useSelector((state: RootState) => state.player.player);
 
-  // Toast notification state
-  const [toastVisible, setToastVisible] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-
-  // Function to show craft completion notification
-  const showCraftingNotification = (itemName: string, quantity: number) => {
-    setToastMessage(`(+${quantity} ${itemName}!)`);
-    setToastVisible(true);
-  };
-
   // Initialize the world when component mounts
   useEffect(() => {
     if (!isLoaded) {
@@ -84,48 +57,17 @@ export const VoxelGameScreen: React.FC = () => {
     }
   }, [dispatch, isLoaded]);
 
-  // Register for background crafting notifications
-  useEffect(() => {
-    craftingTimer.onCraftingComplete(showCraftingNotification);
-
-    return () => {
-      craftingTimer.removeCompletionCallback(showCraftingNotification);
-    };
-  }, []);
-
   const handleTilePress = (event: any) => {
-    if (!character || !camera || !tiles) {
-      console.log(
-        "Missing data - character:",
-        !!character,
-        "camera:",
-        !!camera,
-        "tiles:",
-        !!tiles
-      );
-      return;
-    }
-
     const { locationX, locationY } = event.nativeEvent;
-
     const tileCoords = screenToTile(
       locationX,
       locationY,
       40, // tileSize
       camera.offsetX,
-      camera.offsetY,
-      character.x, // characterX
-      character.y // characterY
+      camera.offsetY
     );
 
-    console.log(
-      "Tap -> Tile:",
-      tileCoords.x,
-      tileCoords.y,
-      "| Current pos:",
-      character.x,
-      character.y
-    );
+    console.log("Tapped tile:", tileCoords.x, tileCoords.y);
     dispatch(moveCharacter({ x: tileCoords.x, y: tileCoords.y }));
   };
 
@@ -134,24 +76,10 @@ export const VoxelGameScreen: React.FC = () => {
     dispatch(setCameraPosition({ x: 0, y: 0 }));
   };
 
-  const forceNewWorld = () => {
-    // Force a new world by clearing isLoaded first
-    dispatch(resetWorld());
-    setTimeout(() => {
-      dispatch(generateWorld({ width: 20, height: 20 }));
-    }, 100);
-  };
-
-  if (!isLoaded || !tiles || tiles.length === 0) {
+  if (!isLoaded || !tiles.length) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
         <Text style={styles.loadingText}>Generating World...</Text>
-        <TouchableOpacity
-          style={[styles.regenerateButton, { marginTop: 20 }]}
-          onPress={forceNewWorld}
-        >
-          <Text style={styles.buttonText}>Force New World</Text>
-        </TouchableOpacity>
       </SafeAreaView>
     );
   }
@@ -171,25 +99,21 @@ export const VoxelGameScreen: React.FC = () => {
         </TouchableOpacity>
         <View style={styles.cameraInfo}>
           <Text style={styles.infoText}>
-            Character: ({character?.x || 0}, {character?.y || 0})
+            Character: ({character.x}, {character.y})
           </Text>
         </View>
       </View>
 
       {/* Tile World - Takes up most of the screen */}
-      <TouchableWithoutFeedback onPress={handleTilePress}>
-        <View style={styles.worldContainer}>
-          {tiles && character && camera && (
-            <SVGTileWorld
-              tiles={tiles}
-              character={character}
-              tileSize={40}
-              offsetX={camera.offsetX}
-              offsetY={camera.offsetY}
-            />
-          )}
-        </View>
-      </TouchableWithoutFeedback>
+      <View style={styles.worldContainer} onTouchEnd={handleTilePress}>
+        <SVGTileWorld
+          tiles={tiles}
+          character={character}
+          tileSize={40}
+          offsetX={camera.offsetX}
+          offsetY={camera.offsetY}
+        />
+      </View>
 
       {/* Minimal Bottom Controls */}
       <View style={styles.bottomControls}>
@@ -197,16 +121,6 @@ export const VoxelGameScreen: React.FC = () => {
           Tap on tiles to move your character
         </Text>
       </View>
-
-      {/* Crafting Progress Overlay */}
-      <CraftingProgressOverlay />
-
-      {/* Toast Notification */}
-      <ToastNotification
-        message={toastMessage}
-        visible={toastVisible}
-        onHide={() => setToastVisible(false)}
-      />
     </SafeAreaView>
   );
 };

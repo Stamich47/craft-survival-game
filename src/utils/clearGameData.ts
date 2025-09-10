@@ -2,6 +2,37 @@
 // Use this if you need to manually clear all persisted data
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { store } from "../store";
+import { addItem } from "../store/inventorySlice";
+import { ITEMS } from "../data";
+
+// Development utility to add items for testing
+export const addTestItems = () => {
+  console.log("🎮 Adding test items for development...");
+
+  // Add wood
+  const wood = ITEMS["wood"];
+  if (wood) {
+    store.dispatch(addItem({ item: wood, quantity: 20 }));
+    console.log("✅ Added 20x Wood");
+  }
+
+  // Add stone
+  const stone = ITEMS["stone"];
+  if (stone) {
+    store.dispatch(addItem({ item: stone, quantity: 15 }));
+    console.log("✅ Added 15x Stone");
+  }
+
+  // Add rope
+  const rope = ITEMS["rope"];
+  if (rope) {
+    store.dispatch(addItem({ item: rope, quantity: 10 }));
+    console.log("✅ Added 10x Rope");
+  }
+
+  console.log("🎉 Test items added successfully!");
+};
 
 export const clearAllGameData = async () => {
   try {

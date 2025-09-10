@@ -14,6 +14,7 @@ import { Button, ProgressBar } from "../ui";
 import { Recipe } from "../../types";
 import { RECIPES, ITEMS } from "../../data";
 import { canCraftRecipe } from "../../utils";
+import { craftingTimer } from "../../services/CraftingTimerService";
 
 interface CraftingPanelProps {
   onCraftComplete?: (itemName: string, quantity: number) => void;
@@ -123,62 +124,50 @@ export const CraftingPanel: React.FC<CraftingPanelProps> = ({
     [player, inventory, dispatch, onCraftComplete]
   );
 
-  // Timer for updating crafting progress
+  // Update progress from background timer service
   useEffect(() => {
-    console.log("Timer useEffect triggered", {
+    console.log("Progress updater effect triggered", {
       isActive: currentCraft?.isActive,
       recipeId: currentCraft?.recipeId,
-      startTime: currentCraft?.startTime,
+      currentProgress,
     });
 
     if (!currentCraft?.isActive) {
-      console.log("Timer NOT starting - craft not active");
-      setCurrentProgress(0); // Reset progress when not crafting
+      console.log("No active craft, resetting progress to 0");
+      setCurrentProgress(0);
       return;
     }
 
-    console.log("Timer starting for craft:", currentCraft);
-    let hasCompleted = false; // Guard to prevent multiple completions
+    console.log("Setting up progress updater for active craft");
 
     const interval = setInterval(() => {
-      // Check if crafting is complete
-      const recipe = RECIPES[currentCraft.recipeId];
-      if (recipe && !hasCompleted) {
-        const elapsed = (Date.now() - currentCraft.startTime) / 1000;
-        const progressPercent = Math.min(
-          100,
-          (elapsed / recipe.craftingTime) * 100
-        );
+      const progress = craftingTimer.getCraftingProgress();
+      setCurrentProgress(progress);
 
-        // Update progress state to trigger re-render
-        setCurrentProgress(progressPercent);
-
+      // Check if the background service indicates crafting is no longer active
+      // but we still have an active craft in Redux (race condition)
+      if (!craftingTimer.isActive() && currentCraft?.isActive) {
         console.log(
-          `Crafting progress - Elapsed: ${elapsed.toFixed(2)}s, Required: ${
-            recipe.craftingTime
-          }s, Progress: ${progressPercent.toFixed(1)}%`
+          "Background crafting completed, but Redux state still shows active - forcing reset"
         );
-
-        if (elapsed >= recipe.craftingTime) {
-          console.log("Crafting should complete now!");
-          hasCompleted = true; // Prevent multiple completions
-          setCurrentProgress(100); // Ensure 100% before completion
-          // Complete the crafting first, then clear state
-          completeCraftingProcess(recipe);
-        }
+        setCurrentProgress(0);
       }
-    }, 100); // Update every 100ms for smooth progress
+    }, 100); // Update UI every 100ms for smooth progress
 
     return () => {
-      console.log("Timer cleanup");
+      console.log("Progress updater cleanup");
       clearInterval(interval);
     };
-  }, [
-    currentCraft?.isActive,
-    currentCraft?.recipeId,
-    currentCraft?.startTime,
-    completeCraftingProcess,
-  ]);
+  }, [currentCraft?.isActive, currentCraft?.recipeId, currentCraft?.startTime]);
+
+  // Additional effect to handle Redux state changes
+  useEffect(() => {
+    // When currentCraft becomes null (crafting completed), reset progress immediately
+    if (!currentCraft) {
+      console.log("currentCraft became null, resetting progress");
+      setCurrentProgress(0);
+    }
+  }, [currentCraft]);
 
   const availableRecipes = Object.values(RECIPES).filter(
     (recipe) =>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
@@ -11,11 +11,29 @@ import {
 } from "react-native";
 import { store, persistor } from "./src/store";
 import { GameScreen, VoxelGameScreen } from "./src/screens";
+import { craftingTimer } from "./src/services/CraftingTimerService";
+import { addTestItems } from "./src/utils/clearGameData";
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<"inventory" | "voxel">(
     "voxel"
   );
+
+  // Start the crafting timer when the app loads
+  useEffect(() => {
+    craftingTimer.start();
+
+    // Add development utilities to global scope
+    if (__DEV__) {
+      (global as any).addTestItems = addTestItems;
+      console.log("🛠️ Development utility available: addTestItems()");
+    }
+
+    // Cleanup when app unmounts
+    return () => {
+      craftingTimer.stop();
+    };
+  }, []);
 
   const AppContent = () => (
     <>
