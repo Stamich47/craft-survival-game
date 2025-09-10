@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sprite Asset Diagnostic</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background-color: #f0f0f0;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .sprite-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+      }
+      .sprite-item {
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        background-color: #fafafa;
+      }
+      .sprite-item h3 {
+        margin: 0 0 10px 0;
+        color: #333;
+      }
+      .sprite-image {
+        width: 48px;
+        height: 48px;
+        image-rendering: pixelated;
+        border: 1px solid #ccc;
+        margin: 10px 0;
+      }
+      .sprite-info {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+      }
+      .problem {
+        border-color: #ff6b6b;
+        background-color: #ffe3e3;
+      }
+      .problem h3 {
+        color: #d32f2f;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔍 Sprite Asset Diagnostic Tool</h1>
+      <p>This tool helps identify sprite mapping issues in your game assets.</p>
+
+      <h2>Expected Problem Items:</h2>
+      <div class="sprite-grid">
+        <div class="sprite-item problem">
+          <h3>Wood</h3>
+          <p><strong>Expected:</strong> sprite_000.png</p>
+          <img
+            class="sprite-image"
+            src="src/assets/sprites/sprite_000.png"
+            alt="Wood sprite"
+            onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiBmaWxsPSIjZmY2YjZiIi8+Cjx0ZXh0IHg9IjI0IiB5PSIyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiIGZvbnQtc2l6ZT0iMTAiPkVSUk9SPC90ZXh0Pgo8L3N2Zz4K'"
+          />
+          <div class="sprite-info">Currently shows: Placeholder/Error</div>
+        </div>
+
+        <div class="sprite-item problem">
+          <h3>Beef</h3>
+          <p><strong>Expected:</strong> sprite_078.png</p>
+          <img
+            class="sprite-image"
+            src="src/assets/sprites/sprite_078.png"
+            alt="Beef sprite"
+            onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiBmaWxsPSIjZmY2YjZiIi8+Cjx0ZXh0IHg9IjI0IiB5PSIyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiIGZvbnQtc2l6ZT0iMTAiPkVSUk9SPC90ZXh0Pgo8L3N2Zz4K'"
+          />
+          <div class="sprite-info">Currently shows: Honey icon</div>
+        </div>
+
+        <div class="sprite-item">
+          <h3>Honey</h3>
+          <p><strong>Expected:</strong> sprite_077.png</p>
+          <img
+            class="sprite-image"
+            src="src/assets/sprites/sprite_077.png"
+            alt="Honey sprite"
+            onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiBmaWxsPSIjZmZjMTA3Ii8+Cjx0ZXh0IHg9IjI0IiB5PSIyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iYmxhY2siIGZvbnQtc2l6ZT0iOCI+SG9uZXk8L3RleHQ+Cjwvc3ZnPgo='"
+          />
+          <div class="sprite-info">Should be correct</div>
+        </div>
+      </div>
+
+      <h2>Diagnostic Information:</h2>
+      <div id="diagnostics">
+        <p>🔍 <strong>Checking asset paths and mappings...</strong></p>
+      </div>
+
+      <h2>Quick Fixes:</h2>
+      <div
+        style="
+          background-color: #e8f5e8;
+          padding: 15px;
+          border-radius: 8px;
+          margin-top: 20px;
+        "
+      >
+        <h3>If sprites are swapped or corrupted:</h3>
+        <ol>
+          <li>
+            <strong>Clear cache:</strong> Restart Metro bundler with cache clear
+          </li>
+          <li>
+            <strong>Check file integrity:</strong> Verify sprite files weren't
+            corrupted
+          </li>
+          <li><strong>Restart app:</strong> Force close and reopen the app</li>
+          <li><strong>Re-bundle:</strong> Delete node_modules and reinstall</li>
+        </ol>
+      </div>
+
+      <div
+        style="
+          background-color: #fff3cd;
+          padding: 15px;
+          border-radius: 8px;
+          margin-top: 15px;
+        "
+      >
+        <h3>Command to clear Metro cache:</h3>
+        <code
+          style="
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            display: block;
+            border-radius: 4px;
+          "
+        >
+          npx expo start --clear
+        </code>
+      </div>
+    </div>
+
+    <script>
+      // Check if sprites load properly
+      function checkSpriteLoad(img, spriteName) {
+        img.onload = function () {
+          console.log(`✅ ${spriteName} loaded successfully`);
+        };
+        img.onerror = function () {
+          console.log(`❌ ${spriteName} failed to load`);
+        };
+      }
+
+      // Add diagnostic info
+      window.addEventListener("load", function () {
+        const diagnostics = document.getElementById("diagnostics");
+
+        // Check if we can access the sprite files
+        const testPaths = [
+          "src/assets/sprites/sprite_000.png",
+          "src/assets/sprites/sprite_077.png",
+          "src/assets/sprites/sprite_078.png",
+        ];
+
+        diagnostics.innerHTML += `<p><strong>Asset Paths being checked:</strong></p>`;
+        testPaths.forEach((path) => {
+          diagnostics.innerHTML += `<p>• ${path}</p>`;
+        });
+
+        diagnostics.innerHTML += `<p style="margin-top: 15px;"><strong>If sprites show red ERROR boxes above:</strong><br>
+            1. The asset files may be missing or corrupted<br>
+            2. The path references may be incorrect<br>
+            3. Metro bundler cache may need clearing</p>`;
+      });
+    </script>
+  </body>
+</html>

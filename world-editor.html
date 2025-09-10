@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>World One - Visual World Editor</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f0f0f0;
+        user-select: none;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .editor-layout {
+        display: flex;
+        gap: 30px;
+      }
+
+      .tile-palette {
+        width: 300px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        border: 2px solid #dee2e6;
+      }
+
+      .palette-section {
+        margin-bottom: 25px;
+      }
+
+      .palette-section h3 {
+        margin: 0 0 15px 0;
+        color: #333;
+        font-size: 16px;
+        border-bottom: 2px solid #4caf50;
+        padding-bottom: 5px;
+      }
+
+      .tile-library {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .tile-item {
+        width: 48px;
+        height: 48px;
+        border: 2px solid #ddd;
+        border-radius: 4px;
+        background: white;
+        cursor: grab;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        transition: all 0.2s ease;
+      }
+
+      .tile-item:hover {
+        border-color: #4caf50;
+        transform: scale(1.05);
+        box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+      }
+
+      .tile-item:active {
+        cursor: grabbing;
+      }
+
+      .tile-item img {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 2px;
+      }
+
+      .tile-item .tile-name {
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 10px;
+        color: #666;
+        white-space: nowrap;
+      }
+
+      .file-drop-zone {
+        border: 2px dashed #ccc;
+        border-radius: 4px;
+        padding: 20px;
+        text-align: center;
+        color: #666;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+      }
+
+      .file-drop-zone.dragover {
+        border-color: #4caf50;
+        background-color: rgba(76, 175, 80, 0.1);
+        color: #4caf50;
+      }
+
+      .world-editor {
+        flex: 1;
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        border: 2px solid #dee2e6;
+      }
+
+      .editor-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .world-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 80px);
+        grid-template-rows: repeat(6, 80px);
+        gap: 2px;
+        justify-content: center;
+        background: #333;
+        padding: 10px;
+        border-radius: 8px;
+        /* Removed isometric transform for flat 2D top-down view */
+      }
+
+      .grid-cell {
+        width: 80px;
+        height: 80px;
+        background: #e9ecef;
+        border: 2px solid #adb5bd;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .grid-cell:hover {
+        border-color: #4caf50;
+        box-shadow: inset 0 0 10px rgba(76, 175, 80, 0.3);
+      }
+
+      .grid-cell.drop-target {
+        border-color: #4caf50;
+        background-color: rgba(76, 175, 80, 0.2);
+        transform: scale(1.05);
+      }
+
+      .grid-cell img {
+        width: 64px;
+        height: 64px;
+        object-fit: cover;
+        border-radius: 2px;
+      }
+
+      .grid-cell .cell-coord {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        font-size: 10px;
+        color: #666;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 1px 3px;
+        border-radius: 2px;
+      }
+
+      .controls {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .btn {
+        background: #4caf50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+        transition: all 0.2s ease;
+      }
+
+      .btn:hover {
+        background: #45a049;
+        transform: translateY(-1px);
+      }
+
+      .btn.secondary {
+        background: #6c757d;
+      }
+
+      .btn.secondary:hover {
+        background: #545b62;
+      }
+
+      .btn.danger {
+        background: #dc3545;
+      }
+
+      .btn.danger:hover {
+        background: #c82333;
+      }
+
+      .output-section {
+        margin-top: 30px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border: 2px solid #dee2e6;
+      }
+
+      .output-section h3 {
+        margin-top: 0;
+        color: #333;
+      }
+
+      .code-output {
+        background: #2d3748;
+        color: #e2e8f0;
+        padding: 15px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+        overflow-x: auto;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .instructions {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+      }
+
+      .instructions h4 {
+        margin-top: 0;
+        color: #856404;
+      }
+
+      .world-preview {
+        margin-top: 20px;
+        text-align: center;
+      }
+
+      .preview-info {
+        display: inline-block;
+        background: #e9ecef;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 5px;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎮 World One - Visual World Editor</h1>
+
+      <div class="instructions">
+        <h4>How to Use:</h4>
+        <ul>
+          <li>
+            <strong>Add Tiles:</strong> Drag and drop your PNG files into the
+            "Drop tiles here" area
+          </li>
+          <li>
+            <strong>Build World:</strong> Drag tiles from the palette onto the
+            6x6 grid
+          </li>
+          <li>
+            <strong>Generate Code:</strong> Click "Generate World Data" to get
+            TypeScript code
+          </li>
+          <li>
+            <strong>Save/Load:</strong> Use buttons to save your design or load
+            presets
+          </li>
+        </ul>
+      </div>
+
+      <div class="editor-layout">
+        <!-- Tile Palette -->
+        <div class="tile-palette">
+          <h3>🎨 Tile Palette</h3>
+
+          <div class="file-drop-zone" id="dropZone">
+            <p>
+              📁 Drop your tile PNG files here<br />
+              <small>or click to browse</small>
+            </p>
+            <input
+              type="file"
+              id="fileInput"
+              multiple
+              accept="image/png"
+              class="hidden"
+            />
+          </div>
+
+          <div class="palette-section">
+            <h3>Grass Tiles</h3>
+            <div class="tile-library" id="grassTiles"></div>
+          </div>
+
+          <div class="palette-section">
+            <h3>Cliff Tiles</h3>
+            <div class="tile-library" id="cliffTiles"></div>
+          </div>
+
+          <div class="palette-section">
+            <h3>Other Tiles</h3>
+            <div class="tile-library" id="otherTiles"></div>
+          </div>
+        </div>
+
+        <!-- World Editor -->
+        <div class="world-editor">
+          <div class="editor-controls">
+            <h3>🗺️ World Grid (6x6)</h3>
+            <div class="controls">
+              <button class="btn secondary" onclick="clearGrid()">
+                Clear All
+              </button>
+              <button class="btn secondary" onclick="fillWithGrass()">
+                Fill Grass
+              </button>
+              <button class="btn" onclick="generateWorldData()">
+                Generate World Data
+              </button>
+            </div>
+          </div>
+
+          <div class="world-grid" id="worldGrid"></div>
+
+          <div class="world-preview">
+            <div class="preview-info">
+              <strong>Grid Size:</strong> 6x6 tiles
+            </div>
+            <div class="preview-info">
+              <strong>Spawn Point:</strong> <span id="spawnPoint">(2, 2)</span>
+            </div>
+            <div class="preview-info">
+              <strong>Tiles Used:</strong> <span id="tilesUsed">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="output-section" id="outputSection" style="display: none">
+        <h3>📋 Generated Code</h3>
+        <div class="controls" style="margin-bottom: 15px">
+          <button class="btn secondary" onclick="copyToClipboard()">
+            Copy to Clipboard
+          </button>
+          <button class="btn secondary" onclick="downloadAsFile()">
+            Download as .ts File
+          </button>
+          <button class="btn secondary" onclick="hideOutput()">
+            Hide Output
+          </button>
+        </div>
+        <pre class="code-output" id="codeOutput"></pre>
+      </div>
+    </div>
+
+    <script>
+      class WorldEditor {
+        constructor() {
+          this.tiles = new Map(); // filename -> {name, category, dataUrl, file}
+          this.worldGrid = Array(6)
+            .fill()
+            .map(() => Array(6).fill(null));
+          this.spawnPoint = { x: 2, y: 2 };
+          this.draggedTile = null;
+
+          this.initializeGrid();
+          this.setupEventListeners();
+        }
+
+        initializeGrid() {
+          const gridContainer = document.getElementById("worldGrid");
+          gridContainer.innerHTML = "";
+
+          for (let y = 0; y < 6; y++) {
+            for (let x = 0; x < 6; x++) {
+              const cell = document.createElement("div");
+              cell.className = "grid-cell";
+              cell.dataset.x = x;
+              cell.dataset.y = y;
+
+              const coord = document.createElement("div");
+              coord.className = "cell-coord";
+              coord.textContent = `${x},${y}`;
+              cell.appendChild(coord);
+
+              this.setupGridCellEvents(cell);
+              gridContainer.appendChild(cell);
+            }
+          }
+        }
+
+        setupEventListeners() {
+          // File drop zone
+          const dropZone = document.getElementById("dropZone");
+          const fileInput = document.getElementById("fileInput");
+
+          dropZone.addEventListener("click", () => fileInput.click());
+          dropZone.addEventListener("dragover", this.handleDragOver.bind(this));
+          dropZone.addEventListener("drop", this.handleFileDrop.bind(this));
+
+          fileInput.addEventListener("change", (e) => {
+            this.loadFiles(Array.from(e.target.files));
+          });
+        }
+
+        handleDragOver(e) {
+          e.preventDefault();
+          e.currentTarget.classList.add("dragover");
+        }
+
+        handleFileDrop(e) {
+          e.preventDefault();
+          e.currentTarget.classList.remove("dragover");
+
+          const files = Array.from(e.dataTransfer.files).filter(
+            (f) => f.type === "image/png"
+          );
+          this.loadFiles(files);
+        }
+
+        async loadFiles(files) {
+          for (const file of files) {
+            const dataUrl = await this.fileToDataUrl(file);
+            const name = file.name.replace(".png", "");
+            const category = this.categorizeTile(name);
+
+            this.tiles.set(name, {
+              name,
+              category,
+              dataUrl,
+              file,
+            });
+          }
+
+          this.updatePalette();
+        }
+
+        fileToDataUrl(file) {
+          return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.readAsDataURL(file);
+          });
+        }
+
+        categorizeTile(name) {
+          const lowerName = name.toLowerCase();
+          if (lowerName.includes("grass")) return "grass";
+          if (
+            lowerName.includes("cliff") ||
+            lowerName.includes("rock") ||
+            lowerName.includes("stone")
+          )
+            return "cliff";
+          return "other";
+        }
+
+        updatePalette() {
+          const categories = {
+            grass: document.getElementById("grassTiles"),
+            cliff: document.getElementById("cliffTiles"),
+            other: document.getElementById("otherTiles"),
+          };
+
+          // Clear existing tiles
+          Object.values(categories).forEach(
+            (container) => (container.innerHTML = "")
+          );
+
+          // Add tiles to appropriate categories
+          this.tiles.forEach((tile, name) => {
+            const container = categories[tile.category];
+            if (container) {
+              const tileElement = this.createTileElement(tile);
+              container.appendChild(tileElement);
+            }
+          });
+        }
+
+        createTileElement(tile) {
+          const element = document.createElement("div");
+          element.className = "tile-item";
+          element.draggable = true;
+          element.dataset.tileName = tile.name;
+
+          const img = document.createElement("img");
+          img.src = tile.dataUrl;
+          img.alt = tile.name;
+          element.appendChild(img);
+
+          const nameLabel = document.createElement("div");
+          nameLabel.className = "tile-name";
+          nameLabel.textContent = tile.name;
+          element.appendChild(nameLabel);
+
+          element.addEventListener("dragstart", (e) => {
+            this.draggedTile = tile;
+            e.dataTransfer.effectAllowed = "copy";
+          });
+
+          return element;
+        }
+
+        setupGridCellEvents(cell) {
+          cell.addEventListener("dragover", (e) => {
+            if (this.draggedTile) {
+              e.preventDefault();
+              cell.classList.add("drop-target");
+            }
+          });
+
+          cell.addEventListener("dragleave", () => {
+            cell.classList.remove("drop-target");
+          });
+
+          cell.addEventListener("drop", (e) => {
+            e.preventDefault();
+            cell.classList.remove("drop-target");
+
+            if (this.draggedTile) {
+              this.placeTile(cell, this.draggedTile);
+              this.draggedTile = null;
+            }
+          });
+
+          cell.addEventListener("click", () => {
+            // Right-click or double-click to remove tile
+            this.removeTile(cell);
+          });
+
+          cell.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            this.setSpawnPoint(cell);
+          });
+        }
+
+        placeTile(cell, tile) {
+          const x = parseInt(cell.dataset.x);
+          const y = parseInt(cell.dataset.y);
+
+          // Clear existing tile image
+          const existingImg = cell.querySelector("img");
+          if (existingImg) existingImg.remove();
+
+          // Add new tile
+          const img = document.createElement("img");
+          img.src = tile.dataUrl;
+          img.alt = tile.name;
+          cell.appendChild(img);
+
+          this.worldGrid[y][x] = tile;
+          this.updateStats();
+        }
+
+        removeTile(cell) {
+          const x = parseInt(cell.dataset.x);
+          const y = parseInt(cell.dataset.y);
+
+          const img = cell.querySelector("img");
+          if (img) {
+            img.remove();
+            this.worldGrid[y][x] = null;
+            this.updateStats();
+          }
+        }
+
+        setSpawnPoint(cell) {
+          const x = parseInt(cell.dataset.x);
+          const y = parseInt(cell.dataset.y);
+
+          this.spawnPoint = { x, y };
+          document.getElementById("spawnPoint").textContent = `(${x}, ${y})`;
+
+          // Visual indicator for spawn point
+          document.querySelectorAll(".grid-cell").forEach((c) => {
+            c.style.boxShadow = "";
+          });
+          cell.style.boxShadow = "inset 0 0 15px rgba(255, 0, 0, 0.5)";
+        }
+
+        updateStats() {
+          const tilesUsed = this.worldGrid
+            .flat()
+            .filter((tile) => tile !== null).length;
+          document.getElementById("tilesUsed").textContent = tilesUsed;
+        }
+
+        clearGrid() {
+          document
+            .querySelectorAll(".grid-cell img")
+            .forEach((img) => img.remove());
+          this.worldGrid = Array(6)
+            .fill()
+            .map(() => Array(6).fill(null));
+          this.updateStats();
+        }
+
+        fillWithGrass() {
+          const grassTiles = Array.from(this.tiles.values()).filter(
+            (tile) => tile.category === "grass"
+          );
+          if (grassTiles.length === 0) {
+            alert(
+              "No grass tiles loaded! Please drag and drop some grass tiles first."
+            );
+            return;
+          }
+
+          const cells = document.querySelectorAll(".grid-cell");
+          cells.forEach((cell) => {
+            const randomGrass =
+              grassTiles[Math.floor(Math.random() * grassTiles.length)];
+            this.placeTile(cell, randomGrass);
+          });
+        }
+
+        generateWorldData() {
+          const tileNames = new Set();
+          const tileMapping = new Map();
+          let tileIdCounter = 1000;
+
+          // Collect unique tiles and assign IDs
+          this.worldGrid.forEach((row) => {
+            row.forEach((tile) => {
+              if (tile && !tileMapping.has(tile.name)) {
+                tileMapping.set(tile.name, tileIdCounter++);
+                tileNames.add(tile.name);
+              }
+            });
+          });
+
+          // Generate TypeScript code
+          let code = `// Auto-generated world data from Visual World Editor\n\n`;
+
+          // Imports
+          code += `// Tile imports\n`;
+          code += `export const WORLD_TILES = {\n`;
+          tileNames.forEach((name) => {
+            const safeName = name.toUpperCase().replace(/[^A-Z0-9]/g, "_");
+            code += `  ${safeName}: require('../assets/world-one/tiles/${
+              this.tiles.get(name).category
+            }/${name}.png'),\n`;
+          });
+          code += `} as const;\n\n`;
+
+          // Enum
+          code += `export enum WorldTileType {\n`;
+          tileNames.forEach((name) => {
+            const safeName = name.toUpperCase().replace(/[^A-Z0-9]/g, "_");
+            code += `  ${safeName} = ${tileMapping.get(name)},\n`;
+          });
+          code += `}\n\n`;
+
+          // World layout
+          code += `// 6x6 World Layout\n`;
+          code += `export const CUSTOM_WORLD_LAYOUT = [\n`;
+          this.worldGrid.forEach((row, y) => {
+            const rowData = row.map((tile) => {
+              if (!tile) return "null";
+              const safeName = tile.name
+                .toUpperCase()
+                .replace(/[^A-Z0-9]/g, "_");
+              return `WorldTileType.${safeName}`;
+            });
+            code += `  // Row ${y}\n`;
+            code += `  [${rowData.join(", ")}],\n`;
+          });
+          code += `] as const;\n\n`;
+
+          // Helper function
+          code += `export const getWorldTileAsset = (tileType: WorldTileType) => {\n`;
+          code += `  switch (tileType) {\n`;
+          tileNames.forEach((name) => {
+            const safeName = name.toUpperCase().replace(/[^A-Z0-9]/g, "_");
+            code += `    case WorldTileType.${safeName}: return WORLD_TILES.${safeName};\n`;
+          });
+          code += `    default: return null;\n`;
+          code += `  }\n`;
+          code += `};\n\n`;
+
+          // Configuration
+          code += `export const CUSTOM_WORLD_CONFIG = {\n`;
+          code += `  WIDTH: 6,\n`;
+          code += `  HEIGHT: 6,\n`;
+          code += `  TILE_SIZE: 64,\n`;
+          code += `  SPAWN_X: ${this.spawnPoint.x},\n`;
+          code += `  SPAWN_Y: ${this.spawnPoint.y},\n`;
+          code += `} as const;\n`;
+
+          // Display output
+          document.getElementById("codeOutput").textContent = code;
+          document.getElementById("outputSection").style.display = "block";
+          document
+            .getElementById("outputSection")
+            .scrollIntoView({ behavior: "smooth" });
+
+          this.generatedCode = code;
+        }
+      }
+
+      // Global functions
+      let editor;
+
+      window.addEventListener("load", () => {
+        editor = new WorldEditor();
+      });
+
+      function clearGrid() {
+        editor.clearGrid();
+      }
+
+      function fillWithGrass() {
+        editor.fillWithGrass();
+      }
+
+      function generateWorldData() {
+        editor.generateWorldData();
+      }
+
+      function copyToClipboard() {
+        navigator.clipboard.writeText(editor.generatedCode);
+        alert("Code copied to clipboard!");
+      }
+
+      function downloadAsFile() {
+        const blob = new Blob([editor.generatedCode], {
+          type: "text/typescript",
+        });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "customWorld.ts";
+        link.click();
+      }
+
+      function hideOutput() {
+        document.getElementById("outputSection").style.display = "none";
+      }
+
+      // Prevent default drag behavior on the page
+      document.addEventListener("dragover", (e) => e.preventDefault());
+      document.addEventListener("drop", (e) => e.preventDefault());
+    </script>
+  </body>
+</html>

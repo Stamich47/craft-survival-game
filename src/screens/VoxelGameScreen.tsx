@@ -11,12 +11,19 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store";
 import {
-  generateWorld,
+  // generateWorld removed - no more procedural generation
+  generateFlatWorldOne,
+  generateBasicWorld,
+  WorldType,
   setCameraPosition,
   moveCharacter,
   resetWorld,
+  setWorldType,
 } from "../store/worldSlice";
 import { SVGTileWorld } from "../components/game/SVGTileWorld";
+import { WorldOneTileWorld } from "../components/game/WorldOneTileWorld";
+import { BasicTileWorld } from "../components/game/BasicTileWorld";
+import { CustomTileWorld } from "../components/game/CustomTileWorld";
 import {
   HorizontalPlayerStats,
   CraftingProgressOverlay,
@@ -64,6 +71,7 @@ export const VoxelGameScreen: React.FC = () => {
   const tiles = useSelector((state: RootState) => state.world.tiles);
   const character = useSelector((state: RootState) => state.world.character);
   const camera = useSelector((state: RootState) => state.world.camera);
+  const worldType = useSelector((state: RootState) => state.world.worldType);
   const isLoaded = useSelector((state: RootState) => state.world.isLoaded);
   const player = useSelector((state: RootState) => state.player.player);
 
@@ -77,12 +85,15 @@ export const VoxelGameScreen: React.FC = () => {
     setToastVisible(true);
   };
 
-  // Initialize the world when component mounts
+  // Initialize the world when component mounts - DISABLED for custom world
   useEffect(() => {
-    if (!isLoaded) {
-      dispatch(generateWorld({ width: 20, height: 20 }));
+    // World One is pre-loaded, no need to generate
+    // Only generate if explicitly not loaded and not World One
+    if (!isLoaded && worldType !== WorldType.WORLD_ONE) {
+      console.log("Generating basic world for testing");
+      dispatch(generateBasicWorld());
     }
-  }, [dispatch, isLoaded]);
+  }, [dispatch, isLoaded, worldType]);
 
   // Register for background crafting notifications
   useEffect(() => {
@@ -129,29 +140,17 @@ export const VoxelGameScreen: React.FC = () => {
     dispatch(moveCharacter({ x: tileCoords.x, y: tileCoords.y }));
   };
 
-  const regenerateWorld = () => {
-    dispatch(generateWorld({ width: 20, height: 20 }));
-    dispatch(setCameraPosition({ x: 0, y: 0 }));
-  };
+  // Removed regenerateWorld and forceNewWorld - no more procedural generation
 
-  const forceNewWorld = () => {
-    // Force a new world by clearing isLoaded first
-    dispatch(resetWorld());
-    setTimeout(() => {
-      dispatch(generateWorld({ width: 20, height: 20 }));
-    }, 100);
-  };
+  // Check loading state - World One doesn't need tiles array
+  const needsLoading = !isLoaded && worldType !== WorldType.WORLD_ONE;
+  const needsTiles =
+    worldType !== WorldType.WORLD_ONE && (!tiles || tiles.length === 0);
 
-  if (!isLoaded || !tiles || tiles.length === 0) {
+  if (needsLoading || needsTiles) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Generating World...</Text>
-        <TouchableOpacity
-          style={[styles.regenerateButton, { marginTop: 20 }]}
-          onPress={forceNewWorld}
-        >
-          <Text style={styles.buttonText}>Force New World</Text>
-        </TouchableOpacity>
+        <Text style={styles.loadingText}>Loading World...</Text>
       </SafeAreaView>
     );
   }
@@ -163,12 +162,6 @@ export const VoxelGameScreen: React.FC = () => {
 
       {/* Action Bar */}
       <View style={styles.actionBar}>
-        <TouchableOpacity
-          style={styles.regenerateButton}
-          onPress={regenerateWorld}
-        >
-          <Text style={styles.buttonText}>New World</Text>
-        </TouchableOpacity>
         <View style={styles.cameraInfo}>
           <Text style={styles.infoText}>
             Character: ({character?.x || 0}, {character?.y || 0})
@@ -179,15 +172,38 @@ export const VoxelGameScreen: React.FC = () => {
       {/* Tile World - Takes up most of the screen */}
       <TouchableWithoutFeedback onPress={handleTilePress}>
         <View style={styles.worldContainer}>
-          {tiles && character && camera && (
-            <SVGTileWorld
-              tiles={tiles}
-              character={character}
-              tileSize={40}
-              offsetX={camera.offsetX}
-              offsetY={camera.offsetY}
-            />
-          )}
+          {worldType === WorldType.WORLD_ONE ? (
+            // World One doesn't need tiles array - it has its own data
+            <CustomTileWorld />
+          ) : tiles && character && camera && worldType ? (
+            <>
+              {worldType === WorldType.BASIC_WORLD ? (
+                <BasicTileWorld
+                  tiles={tiles}
+                  character={character}
+                  tileSize={64}
+                  offsetX={camera.offsetX}
+                  offsetY={camera.offsetY}
+                />
+              ) : worldType === WorldType.FLAT_WORLD_ONE ? (
+                <WorldOneTileWorld
+                  tiles={tiles}
+                  character={character}
+                  tileSize={48}
+                  offsetX={camera.offsetX}
+                  offsetY={camera.offsetY}
+                />
+              ) : (
+                <SVGTileWorld
+                  tiles={tiles}
+                  character={character}
+                  tileSize={40}
+                  offsetX={camera.offsetX}
+                  offsetY={camera.offsetY}
+                />
+              )}
+            </>
+          ) : null}
         </View>
       </TouchableWithoutFeedback>
 
@@ -196,6 +212,42 @@ export const VoxelGameScreen: React.FC = () => {
         <Text style={styles.controlsText}>
           Tap on tiles to move your character
         </Text>
+
+        {/* World Type Testing Buttons */}
+        <View style={styles.worldTypeControls}>
+          <TouchableOpacity
+            style={[
+              styles.worldButton,
+              worldType === WorldType.BASIC_WORLD && styles.activeWorldButton,
+            ]}
+            onPress={() => dispatch(generateBasicWorld())}
+          >
+            <Text style={styles.worldButtonText}>Basic 6x6</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.worldButton,
+              worldType === WorldType.FLAT_WORLD_ONE &&
+                styles.activeWorldButton,
+            ]}
+            onPress={() =>
+              dispatch(generateFlatWorldOne({ width: 30, height: 30 }))
+            }
+          >
+            <Text style={styles.worldButtonText}>Legacy World</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.worldButton,
+              worldType === WorldType.WORLD_ONE && styles.activeWorldButton,
+            ]}
+            onPress={() => dispatch(setWorldType(WorldType.WORLD_ONE))}
+          >
+            <Text style={styles.worldButtonText}>World One</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Crafting Progress Overlay */}
@@ -268,5 +320,24 @@ const styles = StyleSheet.create({
     color: "#333",
     fontSize: 14,
     textAlign: "center",
+    marginBottom: 12,
+  },
+  worldTypeControls: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  worldButton: {
+    backgroundColor: "#666",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  activeWorldButton: {
+    backgroundColor: "#4CAF50",
+  },
+  worldButtonText: {
+    color: "white",
+    fontWeight: "600",
+    fontSize: 12,
   },
 });

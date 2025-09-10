@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Placeholder Tile Generator</title>
+  </head>
+  <body>
+    <canvas id="canvas" width="64" height="64" style="display: none"></canvas>
+
+    <script>
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+
+      // Generate grass tile placeholder
+      ctx.fillStyle = "#4CAF50"; // Green
+      ctx.fillRect(0, 0, 64, 64);
+      ctx.strokeStyle = "#2E7D32";
+      ctx.strokeRect(0, 0, 64, 64);
+      ctx.fillStyle = "#66BB6A";
+      for (let i = 0; i < 20; i++) {
+        ctx.fillRect(Math.random() * 64, Math.random() * 64, 2, 2);
+      }
+
+      // Download grass tile
+      const grassLink = document.createElement("a");
+      grassLink.download = "grass.png";
+      grassLink.href = canvas.toDataURL();
+      grassLink.click();
+
+      // Generate cliff tile placeholder
+      ctx.clearRect(0, 0, 64, 64);
+      ctx.fillStyle = "#5D4037"; // Brown
+      ctx.fillRect(0, 0, 64, 64);
+      ctx.strokeStyle = "#3E2723";
+      ctx.strokeRect(0, 0, 64, 64);
+      ctx.fillStyle = "#6D4C41";
+      for (let i = 0; i < 15; i++) {
+        ctx.fillRect(Math.random() * 64, Math.random() * 64, 3, 3);
+      }
+
+      // Download cliff tile
+      const cliffLink = document.createElement("a");
+      cliffLink.download = "cliff.png";
+      cliffLink.href = canvas.toDataURL();
+      cliffLink.click();
+    </script>
+  </body>
+</html>

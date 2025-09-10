@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>World One Tile Clipper</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f0f0f0;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .controls {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .file-input {
+        padding: 8px;
+        border: 2px solid #ddd;
+        border-radius: 4px;
+        background: white;
+      }
+
+      .tile-info {
+        background: #e8f4fd;
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid #b3d9f7;
+        min-width: 200px;
+      }
+
+      .canvas-container {
+        border: 2px solid #333;
+        display: inline-block;
+        position: relative;
+        margin: 20px 0;
+        background: #fff;
+      }
+
+      #imageCanvas {
+        cursor: crosshair;
+        display: block;
+      }
+
+      .selection-overlay {
+        position: absolute;
+        border: 2px solid #ff0000;
+        background: rgba(255, 0, 0, 0.2);
+        pointer-events: none;
+        display: none;
+      }
+
+      .tile-preview {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        margin: 20px 0;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+      }
+
+      .preview-canvas {
+        border: 1px solid #ccc;
+        background: white;
+      }
+
+      .tile-naming {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .tile-naming label {
+        font-weight: bold;
+      }
+
+      .tile-naming select,
+      .tile-naming input {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      .save-button {
+        background: #4caf50;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+      }
+
+      .save-button:hover {
+        background: #45a049;
+      }
+
+      .save-button:disabled {
+        background: #cccccc;
+        cursor: not-allowed;
+      }
+
+      .saved-tiles {
+        margin-top: 30px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+      }
+
+      .saved-tiles h3 {
+        margin-top: 0;
+        color: #333;
+      }
+
+      .saved-tile {
+        display: inline-block;
+        margin: 5px;
+        padding: 10px;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        text-align: center;
+      }
+
+      .saved-tile img {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      .download-all {
+        background: #2196f3;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 20px;
+      }
+
+      .download-all:hover {
+        background: #1976d2;
+      }
+
+      .instructions {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+      }
+
+      .instructions h3 {
+        margin-top: 0;
+        color: #856404;
+      }
+
+      .instructions ul {
+        margin-bottom: 0;
+        padding-left: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎮 World One Tile Clipper</h1>
+
+      <div class="instructions">
+        <h3>How to Use:</h3>
+        <ul>
+          <li>Load a tilemap sprite sheet using the file input</li>
+          <li>
+            Click and drag to select a 64x64 tile (selection will snap to grid)
+          </li>
+          <li>Choose the tile category and enter a custom name</li>
+          <li>Click "Save Tile" to add it to your collection</li>
+          <li>
+            Use "Download All Tiles" to get a ZIP file with all clipped tiles
+          </li>
+        </ul>
+      </div>
+
+      <div class="controls">
+        <input
+          type="file"
+          id="imageInput"
+          class="file-input"
+          accept="image/*"
+        />
+        <div class="tile-info">
+          <strong>Selection:</strong>
+          <span id="selectionInfo">No selection</span><br />
+          <strong>Grid:</strong> <span id="gridInfo">64x64 pixels</span>
+        </div>
+      </div>
+
+      <div class="canvas-container" id="canvasContainer" style="display: none">
+        <canvas id="imageCanvas"></canvas>
+        <div class="selection-overlay" id="selectionOverlay"></div>
+      </div>
+
+      <div class="tile-preview" id="tilePreview" style="display: none">
+        <div>
+          <h3>Selected Tile Preview:</h3>
+          <canvas
+            id="previewCanvas"
+            class="preview-canvas"
+            width="64"
+            height="64"
+          ></canvas>
+        </div>
+
+        <div class="tile-naming">
+          <label for="tileCategory">Tile Category:</label>
+          <select id="tileCategory">
+            <option value="terrain_grass">Terrain - Grass</option>
+            <option value="terrain_dirt">Terrain - Dirt</option>
+            <option value="terrain_stone">Terrain - Stone</option>
+            <option value="terrain_sand">Terrain - Sand</option>
+            <option value="terrain_path">Terrain - Path</option>
+            <option value="terrain_rock">Terrain - Rock</option>
+            <option value="terrain_special">Terrain - Special</option>
+            <option value="water_edge">Water - Edge</option>
+            <option value="water_corner">Water - Corner</option>
+            <option value="water_full">Water - Full</option>
+            <option value="decoration">Decoration</option>
+            <option value="other">Other</option>
+          </select>
+
+          <label for="tileName">Tile Name:</label>
+          <input
+            type="text"
+            id="tileName"
+            placeholder="e.g., grass_01, water_corner_ne"
+          />
+
+          <button id="saveTile" class="save-button" disabled>Save Tile</button>
+        </div>
+      </div>
+
+      <div class="saved-tiles" id="savedTiles" style="display: none">
+        <h3>Saved Tiles (Double-click to remove):</h3>
+        <div id="tilesContainer"></div>
+        <button id="downloadAll" class="download-all">
+          📦 Download All Tiles as ZIP
+        </button>
+        <button
+          id="generateConstants"
+          class="download-all"
+          style="background: #9c27b0"
+        >
+          📝 Generate TypeScript Constants
+        </button>
+      </div>
+    </div>
+
+    <!-- Include JSZip for creating ZIP files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+
+    <script>
+      class TileClipper {
+        constructor() {
+          this.canvas = document.getElementById("imageCanvas");
+          this.ctx = this.canvas.getContext("2d");
+          this.previewCanvas = document.getElementById("previewCanvas");
+          this.previewCtx = this.previewCanvas.getContext("2d");
+
+          this.image = null;
+          this.tileSize = 64;
+          this.selection = null;
+          this.savedTiles = [];
+
+          this.isSelecting = false;
+          this.startX = 0;
+          this.startY = 0;
+
+          this.initializeEventListeners();
+        }
+
+        initializeEventListeners() {
+          // File input
+          document
+            .getElementById("imageInput")
+            .addEventListener("change", (e) => {
+              this.loadImage(e.target.files[0]);
+            });
+
+          // Canvas mouse events
+          this.canvas.addEventListener("mousedown", (e) =>
+            this.startSelection(e)
+          );
+          this.canvas.addEventListener("mousemove", (e) =>
+            this.updateSelection(e)
+          );
+          this.canvas.addEventListener("mouseup", (e) => this.endSelection(e));
+
+          // Save tile button
+          document
+            .getElementById("saveTile")
+            .addEventListener("click", () => this.saveTile());
+
+          // Download all button
+          document
+            .getElementById("downloadAll")
+            .addEventListener("click", () => this.downloadAllTiles());
+
+          // Generate constants button
+          document
+            .getElementById("generateConstants")
+            .addEventListener("click", () => this.generateConstants());
+
+          // Tile name input
+          document
+            .getElementById("tileName")
+            .addEventListener("input", () => this.validateSaveButton());
+        }
+
+        loadImage(file) {
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            this.image = new Image();
+            this.image.onload = () => {
+              this.setupCanvas();
+              this.drawImage();
+            };
+            this.image.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+
+        setupCanvas() {
+          this.canvas.width = this.image.width;
+          this.canvas.height = this.image.height;
+          document.getElementById("canvasContainer").style.display = "block";
+        }
+
+        drawImage() {
+          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+          this.ctx.drawImage(this.image, 0, 0);
+          this.drawGrid();
+        }
+
+        drawGrid() {
+          this.ctx.strokeStyle = "rgba(0, 150, 255, 0.3)";
+          this.ctx.lineWidth = 1;
+
+          // Draw vertical lines
+          for (let x = 0; x < this.canvas.width; x += this.tileSize) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(x, 0);
+            this.ctx.lineTo(x, this.canvas.height);
+            this.ctx.stroke();
+          }
+
+          // Draw horizontal lines
+          for (let y = 0; y < this.canvas.height; y += this.tileSize) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, y);
+            this.ctx.lineTo(this.canvas.width, y);
+            this.ctx.stroke();
+          }
+        }
+
+        getMousePos(e) {
+          const rect = this.canvas.getBoundingClientRect();
+          return {
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top,
+          };
+        }
+
+        snapToGrid(x, y) {
+          return {
+            x: Math.floor(x / this.tileSize) * this.tileSize,
+            y: Math.floor(y / this.tileSize) * this.tileSize,
+          };
+        }
+
+        startSelection(e) {
+          const pos = this.getMousePos(e);
+          const snapped = this.snapToGrid(pos.x, pos.y);
+          this.startX = snapped.x;
+          this.startY = snapped.y;
+          this.isSelecting = true;
+        }
+
+        updateSelection(e) {
+          if (!this.isSelecting) return;
+
+          const pos = this.getMousePos(e);
+          const snapped = this.snapToGrid(pos.x, pos.y);
+
+          // Always make it a 64x64 selection
+          this.selection = {
+            x: this.startX,
+            y: this.startY,
+            width: this.tileSize,
+            height: this.tileSize,
+          };
+
+          this.updateSelectionOverlay();
+          this.updateSelectionInfo();
+        }
+
+        endSelection(e) {
+          if (!this.isSelecting) return;
+          this.isSelecting = false;
+
+          if (this.selection) {
+            this.showTilePreview();
+          }
+        }
+
+        updateSelectionOverlay() {
+          const overlay = document.getElementById("selectionOverlay");
+          if (this.selection) {
+            overlay.style.display = "block";
+            overlay.style.left = this.selection.x + "px";
+            overlay.style.top = this.selection.y + "px";
+            overlay.style.width = this.selection.width + "px";
+            overlay.style.height = this.selection.height + "px";
+          } else {
+            overlay.style.display = "none";
+          }
+        }
+
+        updateSelectionInfo() {
+          const info = document.getElementById("selectionInfo");
+          if (this.selection) {
+            const gridX = this.selection.x / this.tileSize;
+            const gridY = this.selection.y / this.tileSize;
+            info.textContent = `${this.selection.width}x${this.selection.height} at grid (${gridX}, ${gridY})`;
+          } else {
+            info.textContent = "No selection";
+          }
+        }
+
+        showTilePreview() {
+          if (!this.selection) return;
+
+          // Clear preview canvas
+          this.previewCtx.clearRect(0, 0, 64, 64);
+
+          // Draw selected tile
+          this.previewCtx.drawImage(
+            this.image,
+            this.selection.x,
+            this.selection.y,
+            this.selection.width,
+            this.selection.height,
+            0,
+            0,
+            64,
+            64
+          );
+
+          document.getElementById("tilePreview").style.display = "flex";
+          this.validateSaveButton();
+        }
+
+        validateSaveButton() {
+          const button = document.getElementById("saveTile");
+          const tileName = document.getElementById("tileName").value.trim();
+          const hasSelection = this.selection !== null;
+
+          button.disabled = !hasSelection || !tileName;
+        }
+
+        saveTile() {
+          if (!this.selection) return;
+
+          const category = document.getElementById("tileCategory").value;
+          const tileName = document.getElementById("tileName").value.trim();
+
+          if (!tileName) return;
+
+          // Create a canvas for the tile
+          const tileCanvas = document.createElement("canvas");
+          tileCanvas.width = 64;
+          tileCanvas.height = 64;
+          const tileCtx = tileCanvas.getContext("2d");
+
+          // Draw the selected tile
+          tileCtx.drawImage(
+            this.image,
+            this.selection.x,
+            this.selection.y,
+            this.selection.width,
+            this.selection.height,
+            0,
+            0,
+            64,
+            64
+          );
+
+          // Save tile data
+          const tileData = {
+            name: tileName,
+            category: category,
+            canvas: tileCanvas,
+            dataUrl: tileCanvas.toDataURL("image/png"),
+          };
+
+          this.savedTiles.push(tileData);
+          this.updateSavedTilesDisplay();
+
+          // Clear form
+          document.getElementById("tileName").value = "";
+          this.validateSaveButton();
+        }
+
+        updateSavedTilesDisplay() {
+          const container = document.getElementById("tilesContainer");
+          const savedSection = document.getElementById("savedTiles");
+
+          if (this.savedTiles.length === 0) {
+            savedSection.style.display = "none";
+            return;
+          }
+
+          savedSection.style.display = "block";
+          container.innerHTML = "";
+
+          this.savedTiles.forEach((tile, index) => {
+            const tileDiv = document.createElement("div");
+            tileDiv.className = "saved-tile";
+            tileDiv.innerHTML = `
+                        <img src="${tile.dataUrl}" width="32" height="32" alt="${tile.name}">
+                        <div><strong>${tile.name}</strong></div>
+                        <div><small>${tile.category}</small></div>
+                    `;
+
+            // Double-click to remove
+            tileDiv.addEventListener("dblclick", () => {
+              this.savedTiles.splice(index, 1);
+              this.updateSavedTilesDisplay();
+            });
+
+            container.appendChild(tileDiv);
+          });
+        }
+
+        async downloadAllTiles() {
+          if (this.savedTiles.length === 0) {
+            alert("No tiles to download!");
+            return;
+          }
+
+          const zip = new JSZip();
+
+          // Group tiles by category
+          const categories = {};
+          this.savedTiles.forEach((tile) => {
+            if (!categories[tile.category]) {
+              categories[tile.category] = [];
+            }
+            categories[tile.category].push(tile);
+          });
+
+          // Add tiles to ZIP organized by category
+          for (const [category, tiles] of Object.entries(categories)) {
+            const folder = zip.folder(category);
+            tiles.forEach((tile) => {
+              const base64Data = tile.dataUrl.split(",")[1];
+              folder.file(`${tile.name}.png`, base64Data, { base64: true });
+            });
+          }
+
+          // Generate and download ZIP
+          const content = await zip.generateAsync({ type: "blob" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(content);
+          link.download = "world_one_tiles.zip";
+          link.click();
+        }
+
+        generateConstants() {
+          if (this.savedTiles.length === 0) {
+            alert("No tiles to generate constants for!");
+            return;
+          }
+
+          let constants = "// Auto-generated tile constants\n\n";
+
+          // Group by category
+          const categories = {};
+          this.savedTiles.forEach((tile) => {
+            if (!categories[tile.category]) {
+              categories[tile.category] = [];
+            }
+            categories[tile.category].push(tile);
+          });
+
+          // Generate constants for each category
+          for (const [category, tiles] of Object.entries(categories)) {
+            const categoryName = category.toUpperCase();
+            constants += `export const ${categoryName}_TILES = {\n`;
+
+            tiles.forEach((tile) => {
+              const constName = tile.name
+                .toUpperCase()
+                .replace(/[^A-Z0-9]/g, "_");
+              constants += `  ${constName}: require('../assets/world-one/tiles/${category}/${tile.name}.png'),\n`;
+            });
+
+            constants += "} as const;\n\n";
+          }
+
+          // Generate enum
+          constants += "export enum TileType {\n";
+          let enumValue = 100;
+          for (const [category, tiles] of Object.entries(categories)) {
+            tiles.forEach((tile) => {
+              const constName = tile.name
+                .toUpperCase()
+                .replace(/[^A-Z0-9]/g, "_");
+              constants += `  ${constName} = ${enumValue},\n`;
+              enumValue++;
+            });
+          }
+          constants += "}\n\n";
+
+          // Generate helper function
+          constants +=
+            "export const getTileAsset = (tileType: TileType) => {\n";
+          constants += "  switch (tileType) {\n";
+
+          for (const [category, tiles] of Object.entries(categories)) {
+            const categoryName = category.toUpperCase();
+            tiles.forEach((tile) => {
+              const constName = tile.name
+                .toUpperCase()
+                .replace(/[^A-Z0-9]/g, "_");
+              constants += `    case TileType.${constName}: return ${categoryName}_TILES.${constName};\n`;
+            });
+          }
+
+          constants += "    default: return null;\n";
+          constants += "  }\n";
+          constants += "};\n";
+
+          // Download as TypeScript file
+          const blob = new Blob([constants], { type: "text/typescript" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "tileConstants.ts";
+          link.click();
+        }
+      }
+
+      // Initialize the tile clipper when page loads
+      window.addEventListener("load", () => {
+        new TileClipper();
+      });
+    </script>
+  </body>
+</html>

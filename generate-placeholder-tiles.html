@@ -1,0 +1,112 @@
+<!-- Simple PNG Placeholder Generator for Testing -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Generate Placeholder Tiles</title>
+  </head>
+  <body>
+    <h2>Generate Placeholder PNG Files</h2>
+    <p>
+      Click the buttons below to generate and download placeholder tiles for
+      testing:
+    </p>
+
+    <script>
+      function generatePlaceholderPNG(color, filename) {
+        const canvas = document.createElement("canvas");
+        canvas.width = 64;
+        canvas.height = 64;
+        const ctx = canvas.getContext("2d");
+
+        // Fill with color
+        ctx.fillStyle = color;
+        ctx.fillRect(0, 0, 64, 64);
+
+        // Add border
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(0, 0, 64, 64);
+
+        // Add text label
+        ctx.fillStyle = "#000";
+        ctx.font = "8px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText(filename.split(".")[0], 32, 32);
+
+        // Download
+        canvas.toBlob(function (blob) {
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = filename;
+          link.click();
+        });
+      }
+
+      // Generate all grass tiles (green)
+      const grassTiles = [
+        "grass_top_left_corner.png",
+        "grass_top_middle.png",
+        "grass_top_right_corner.png",
+        "grass_left_middle.png",
+        "grass.png",
+        "grass_bottom_right_corner.png",
+        "grass_right_middle.png",
+        "grass_bottom_left_corner.png",
+        "grass_bottom_middle.png",
+      ];
+
+      // Generate all cliff tiles (gray)
+      const cliffTiles = [
+        "cliff_bottom_right.png",
+        "cliff_bottom_left.png",
+        "cliff_bottom_middle.png",
+      ];
+
+      function generateAllGrassTiles() {
+        grassTiles.forEach((filename, index) => {
+          setTimeout(
+            () => generatePlaceholderPNG("#4CAF50", filename),
+            index * 100
+          );
+        });
+      }
+
+      function generateAllCliffTiles() {
+        cliffTiles.forEach((filename, index) => {
+          setTimeout(
+            () => generatePlaceholderPNG("#757575", filename),
+            index * 100
+          );
+        });
+      }
+
+      function generateAllTiles() {
+        generateAllGrassTiles();
+        setTimeout(generateAllCliffTiles, 1000);
+      }
+    </script>
+
+    <button onclick="generateAllTiles()">
+      🎨 Generate ALL Tiles (12 files)</button
+    ><br /><br />
+    <button onclick="generateAllGrassTiles()">
+      🌱 Generate Grass Tiles (9 files)</button
+    ><br /><br />
+    <button onclick="generateAllCliffTiles()">
+      🗿 Generate Cliff Tiles (3 files)</button
+    ><br /><br />
+
+    <p><strong>Instructions:</strong></p>
+    <ol>
+      <li>Click "Generate ALL Tiles" to download all 12 placeholder PNGs</li>
+      <li>
+        Move the grass tiles to: <code>src/assets/world-one/tiles/grass/</code>
+      </li>
+      <li>
+        Move the cliff tiles to: <code>src/assets/world-one/tiles/cliff/</code>
+      </li>
+      <li>Test your game - the Custom world should now work!</li>
+      <li>Later, replace these placeholders with your actual tile graphics</li>
+    </ol>
+  </body>
+</html>
