@@ -89,6 +89,14 @@ const TREE_TRANSPARENCY_OFFSET: Partial<Record<WorldTileType, number>> = {
   [WorldTileType.TREE3_SPRITE]: 24, // Tree base is 3 blocks (24 pixels) up from sprite bottom
 };
 
+// Tree split ratios - what percentage of tree height is the base vs canopy
+const TREE_SPLIT_RATIOS: Partial<
+  Record<WorldTileType, { baseRatio: number; canopyRatio: number }>
+> = {
+  [WorldTileType.TREE1_SPRITE]: { baseRatio: 0.4, canopyRatio: 0.6 }, // 40% base, 60% canopy
+  [WorldTileType.TREE3_SPRITE]: { baseRatio: 0.5, canopyRatio: 0.5 }, // 50% base, 50% canopy
+};
+
 // Scale factors for overlay sprites (1.0 = same size as base tile)
 const OVERLAY_SCALES: Partial<Record<WorldTileType, number>> = {
   [WorldTileType.TREE1_SPRITE]: 0.4, // Scale down the 192x256 tree to reasonable game size
@@ -117,12 +125,43 @@ export const CustomTileWorld: React.FC<CustomTileWorldProps> = ({
   };
 
   const handleTilePress = (x: number, y: number) => {
-    const tileType = getTileAtPosition(x, y);
-    const hasOverlay = hasOverlayAtPosition(x, y);
+    // Bounds checking
+    if (
+      x < 0 ||
+      x >= CUSTOM_WORLD_CONFIG.WIDTH ||
+      y < 0 ||
+      y >= CUSTOM_WORLD_CONFIG.HEIGHT
+    ) {
+      console.log(`❌ Blocked: ${x} ${y} (out of bounds)`);
+      return;
+    }
 
-    // Can't move to cliff tiles or tiles with tree overlays
-    if (tileType && !isCliffTile(tileType) && !hasOverlay) {
+    const tileType = getTileAtPosition(x, y);
+    const overlayType = CUSTOM_WORLD_OVERLAY[y] && CUSTOM_WORLD_OVERLAY[y][x];
+
+    // Check what type of overlay is blocking movement
+    const isTreeBase =
+      overlayType === WorldTileType.TREE1_SPRITE ||
+      overlayType === WorldTileType.TREE3_SPRITE;
+    const isOtherOverlay = overlayType && !isTreeBase; // Non-tree overlays (like water)
+
+    console.log(
+      `Tap -> Tile: ${x} ${y} | Current pos: ${characterPosition.x} ${characterPosition.y}`
+    );
+    console.log(
+      `  TileType: ${tileType}, OverlayType: ${overlayType}, IsTreeBase: ${isTreeBase}, IsOtherOverlay: ${isOtherOverlay}`
+    );
+
+    // Can't move to cliff tiles, tree bases, or other solid overlays
+    if (tileType && !isCliffTile(tileType) && !isTreeBase && !isOtherOverlay) {
+      console.log(`✅ Moving to: ${x} ${y}`);
       dispatch(moveCharacter({ x, y }));
+    } else {
+      console.log(
+        `❌ Blocked: ${x} ${y} (cliff: ${
+          tileType ? isCliffTile(tileType) : false
+        }, tree: ${isTreeBase}, other: ${isOtherOverlay})`
+      );
     }
     onTilePress?.(x, y);
   };
@@ -191,6 +230,12 @@ export const CustomTileWorld: React.FC<CustomTileWorldProps> = ({
 
     const asset = getWorldTileAsset(overlayType);
     if (!asset) return null;
+
+    // Skip trees since they're handled by separate tree base/canopy functions
+    const isTree =
+      overlayType === WorldTileType.TREE1_SPRITE ||
+      overlayType === WorldTileType.TREE3_SPRITE;
+    if (isTree) return null;
 
     // Get scale factor for this overlay type
     const overlayScale = OVERLAY_SCALES[overlayType] || 1.0;
@@ -270,6 +315,115 @@ export const CustomTileWorld: React.FC<CustomTileWorldProps> = ({
     );
   };
 
+  const renderTreeBase = (x: number, y: number) => {
+    const overlayType = CUSTOM_WORLD_OVERLAY[y][x];
+    if (!overlayType) return null;
+
+    const asset = getWorldTileAsset(overlayType);
+    if (!asset) return null;
+
+    // Only render trees for base layer
+    const isTree =
+      overlayType === WorldTileType.TREE1_SPRITE ||
+      overlayType === WorldTileType.TREE3_SPRITE;
+    if (!isTree) return null;
+
+    // Get split ratio for this tree type
+    const splitRatio = TREE_SPLIT_RATIOS[overlayType];
+    if (!splitRatio) return null;
+
+    // Get scale factor for this overlay type
+    const overlayScale = OVERLAY_SCALES[overlayType] || 1.0;
+    const animationConfig = ANIMATION_CONFIGS[overlayType];
+
+    // Use the animation config width/height if available, otherwise fall back to tileSize or TILE_SIZE
+    const baseSpriteWidth =
+      animationConfig?.width || animationConfig?.tileSize || TILE_SIZE;
+    const baseSpriteHeight =
+      animationConfig?.height || animationConfig?.tileSize || TILE_SIZE;
+    const scaledWidth = baseSpriteWidth * SCALE * overlayScale;
+    const scaledHeight = baseSpriteHeight * SCALE * overlayScale;
+
+    // Calculate base tile position (match the exact positioning from renderTile)
+    const baseTileX = x * (TILE_SIZE * SCALE - TILE_OVERLAP);
+    const baseTileY = y * (TILE_SIZE * SCALE - TILE_OVERLAP);
+
+    // Center the world (same as base tiles)
+    const worldCenterOffsetX =
+      (400 - CUSTOM_WORLD_CONFIG.WIDTH * TILE_SIZE * SCALE) / 2;
+    const worldCenterOffsetY =
+      (400 - CUSTOM_WORLD_CONFIG.HEIGHT * TILE_SIZE * SCALE) / 2;
+
+    // Calculate how to position the overlay so the tree base is centered on the grass tile
+    const baseTileSize = TILE_SIZE * SCALE;
+    const overlayCenterOffsetX = (scaledWidth - baseTileSize) / 2; // Center horizontally
+
+    // For vertical positioning: we want tree base (not sprite bottom) at grass center
+    // Account for transparent pixels at bottom of tree sprites
+    const transparencyOffset = TREE_TRANSPARENCY_OFFSET[overlayType] || 0;
+    const scaledTransparencyOffset = transparencyOffset * SCALE * overlayScale;
+
+    // Grass center Y = baseTileY + baseTileSize/2
+    // Visual tree base Y = tree top Y + scaledHeight - scaledTransparencyOffset
+    // So: tree top Y = (grass center Y) - scaledHeight + scaledTransparencyOffset
+    const grassCenterY = baseTileSize / 2;
+    const treeTopOffset =
+      grassCenterY - scaledHeight + scaledTransparencyOffset;
+
+    const animated = isAnimatedTile(overlayType);
+
+    // Calculate base height (bottom portion of tree)
+    const baseHeight = scaledHeight * splitRatio.baseRatio;
+
+    return (
+      <View
+        key={`tree-base-${x}-${y}`}
+        style={[
+          styles.overlay,
+          {
+            position: "absolute",
+            left: baseTileX + worldCenterOffsetX - overlayCenterOffsetX,
+            top:
+              baseTileY +
+              worldCenterOffsetY +
+              treeTopOffset +
+              (scaledHeight - baseHeight), // Position at bottom of tree
+            width: scaledWidth,
+            height: baseHeight,
+            overflow: "hidden",
+            zIndex: y + 50, // Y-based z-index for proper layering
+            pointerEvents: "none", // Don't intercept touch events
+          },
+        ]}
+      >
+        <View style={{ marginTop: -(scaledHeight - baseHeight) }}>
+          {animated && animationConfig ? (
+            <SimpleAnimatedSprite
+              spriteSheet={asset}
+              frameCount={animationConfig.frameCount}
+              frameDuration={animationConfig.frameDuration}
+              tileSize={
+                animationConfig.width || animationConfig.tileSize || TILE_SIZE
+              }
+              width={scaledWidth}
+              height={scaledHeight}
+              playing={true}
+            />
+          ) : (
+            <Image
+              source={asset}
+              style={[
+                styles.overlayImage,
+                { width: scaledWidth, height: scaledHeight },
+              ]}
+              resizeMode="stretch"
+            />
+          )}
+        </View>
+      </View>
+    );
+  };
+
   const renderPlayer = () => {
     const x = characterPosition.x;
     const y = characterPosition.y;
@@ -291,7 +445,7 @@ export const CustomTileWorld: React.FC<CustomTileWorldProps> = ({
           {
             left: gridX + centerOffsetX + (TILE_SIZE * SCALE) / 2 - 10, // Center on tile
             top: gridY + centerOffsetY + (TILE_SIZE * SCALE) / 2 - 10, // Center on tile
-            zIndex: 100, // Always on top
+            zIndex: y + 60, // Y-based z-index (above tree bases, below tree canopies)
           },
         ]}
       >
@@ -300,13 +454,120 @@ export const CustomTileWorld: React.FC<CustomTileWorldProps> = ({
     );
   };
 
+  const renderTreeCanopy = (x: number, y: number) => {
+    const overlayType = CUSTOM_WORLD_OVERLAY[y][x];
+    if (!overlayType) return null;
+
+    const asset = getWorldTileAsset(overlayType);
+    if (!asset) return null;
+
+    // Only render trees for canopy layer
+    const isTree =
+      overlayType === WorldTileType.TREE1_SPRITE ||
+      overlayType === WorldTileType.TREE3_SPRITE;
+    if (!isTree) return null;
+
+    // Get split ratio for this tree type
+    const splitRatio = TREE_SPLIT_RATIOS[overlayType];
+    if (!splitRatio) return null;
+
+    // Get scale factor for this overlay type
+    const overlayScale = OVERLAY_SCALES[overlayType] || 1.0;
+    const animationConfig = ANIMATION_CONFIGS[overlayType];
+
+    // Use the animation config width/height if available, otherwise fall back to tileSize or TILE_SIZE
+    const baseSpriteWidth =
+      animationConfig?.width || animationConfig?.tileSize || TILE_SIZE;
+    const baseSpriteHeight =
+      animationConfig?.height || animationConfig?.tileSize || TILE_SIZE;
+    const scaledWidth = baseSpriteWidth * SCALE * overlayScale;
+    const scaledHeight = baseSpriteHeight * SCALE * overlayScale;
+
+    // Calculate base tile position (match the exact positioning from renderTile)
+    const baseTileX = x * (TILE_SIZE * SCALE - TILE_OVERLAP);
+    const baseTileY = y * (TILE_SIZE * SCALE - TILE_OVERLAP);
+
+    // Center the world (same as base tiles)
+    const worldCenterOffsetX =
+      (400 - CUSTOM_WORLD_CONFIG.WIDTH * TILE_SIZE * SCALE) / 2;
+    const worldCenterOffsetY =
+      (400 - CUSTOM_WORLD_CONFIG.HEIGHT * TILE_SIZE * SCALE) / 2;
+
+    // Calculate how to position the overlay so the tree base is centered on the grass tile
+    const baseTileSize = TILE_SIZE * SCALE;
+    const overlayCenterOffsetX = (scaledWidth - baseTileSize) / 2; // Center horizontally
+
+    // For vertical positioning: we want tree base (not sprite bottom) at grass center
+    // Account for transparent pixels at bottom of tree sprites
+    const transparencyOffset = TREE_TRANSPARENCY_OFFSET[overlayType] || 0;
+    const scaledTransparencyOffset = transparencyOffset * SCALE * overlayScale;
+
+    // Grass center Y = baseTileY + baseTileSize/2
+    // Visual tree base Y = tree top Y + scaledHeight - scaledTransparencyOffset
+    // So: tree top Y = (grass center Y) - scaledHeight + scaledTransparencyOffset
+    const grassCenterY = baseTileSize / 2;
+    const treeTopOffset =
+      grassCenterY - scaledHeight + scaledTransparencyOffset;
+
+    const animated = isAnimatedTile(overlayType);
+
+    // Calculate canopy height (top portion of tree)
+    const canopyHeight = scaledHeight * splitRatio.canopyRatio;
+
+    return (
+      <View
+        key={`tree-canopy-${x}-${y}`}
+        style={[
+          styles.overlay,
+          {
+            position: "absolute",
+            left: baseTileX + worldCenterOffsetX - overlayCenterOffsetX,
+            top: baseTileY + worldCenterOffsetY + treeTopOffset, // Position at top of tree
+            width: scaledWidth,
+            height: canopyHeight,
+            overflow: "hidden",
+            zIndex: y + 70, // Y-based z-index (above character and tree bases)
+            pointerEvents: "none", // Don't intercept touch events
+          },
+        ]}
+      >
+        {animated && animationConfig ? (
+          <SimpleAnimatedSprite
+            spriteSheet={asset}
+            frameCount={animationConfig.frameCount}
+            frameDuration={animationConfig.frameDuration}
+            tileSize={
+              animationConfig.width || animationConfig.tileSize || TILE_SIZE
+            }
+            width={scaledWidth}
+            height={scaledHeight}
+            playing={true}
+          />
+        ) : (
+          <Image
+            source={asset}
+            style={[
+              styles.overlayImage,
+              { width: scaledWidth, height: scaledHeight },
+            ]}
+            resizeMode="stretch"
+          />
+        )}
+      </View>
+    );
+  };
+
   const tiles = [];
   const overlays = [];
+  const treeBases = [];
+  const treeCanopies = [];
 
   for (let y = 0; y < CUSTOM_WORLD_CONFIG.HEIGHT; y++) {
     for (let x = 0; x < CUSTOM_WORLD_CONFIG.WIDTH; x++) {
       tiles.push(renderTile(x, y));
       overlays.push(renderOverlay(x, y));
+      treeBases.push(renderTreeBase(x, y));
+      treeCanopies.push(renderTreeCanopy(x, y));
     }
   }
 
@@ -315,7 +576,9 @@ export const CustomTileWorld: React.FC<CustomTileWorldProps> = ({
       <View style={styles.world}>
         {tiles}
         {overlays}
+        {treeBases}
         {renderPlayer()}
+        {treeCanopies}
       </View>
     </View>
   );
